@@ -4,7 +4,6 @@
 
 import unittest
 from decimal import Decimal
-from datetime import datetime
 
 from app.domains import Item, ItemError, Purchase, PurchaseError, PurchaseBasket
 from app.domains import PurchaseBasketError
@@ -46,16 +45,14 @@ class PurchaseTestCase(unittest.TestCase):
     def test_should_not_purchase_less_than_one_item(self):
         with self.assertRaises(PurchaseError) as catched:
             item = Item(self.sku, self.name, self.price)
-            purchase = Purchase(item, 0, datetime.utcnow())
+            purchase = Purchase(item, 0)
 
         error = catched.exception
         self.assertEqual(error.message, 'Must purchase at least 1 item.')
 
     def test_should_purchase_an_item(self):
-        now = datetime.utcnow()
-
         item = Item(self.sku, self.name, self.price)
-        purchase = Purchase(item, 3, now)
+        purchase = Purchase(item, 3)
 
         self.assertEqual(purchase.item.sku, self.sku)
         self.assertEqual(purchase.item.name, self.name)
@@ -63,19 +60,9 @@ class PurchaseTestCase(unittest.TestCase):
 
         self.assertEqual(purchase.amount, 3)
 
-        self.assertEqual(purchase.timestamp.year, now.year)
-        self.assertEqual(purchase.timestamp.month, now.month)
-        self.assertEqual(purchase.timestamp.day, now.day)
-        self.assertEqual(purchase.timestamp.hour, now.hour)
-        self.assertEqual(purchase.timestamp.minute, now.minute)
-        self.assertEqual(purchase.timestamp.second, now.second)
-        self.assertEqual(purchase.timestamp.microsecond, now.microsecond)
-
     def test_should_increase_item_amount_by_one(self):
-        now = datetime.utcnow()
-
         item = Item(self.sku, self.name, self.price)
-        purchase = Purchase(item, 3, now)
+        purchase = Purchase(item, 3)
 
         self.assertEqual(purchase.amount, 3)
 
@@ -84,21 +71,17 @@ class PurchaseTestCase(unittest.TestCase):
         self.assertEqual(purchase.amount, 4)
 
     def test_should_not_decrease_item_amount_to_less_than_one(self):
-        now = datetime.utcnow()
-
         with self.assertRaises(PurchaseError) as catched:
             item = Item(self.sku, self.name, self.price)
-            purchase = Purchase(item, 1, now)
+            purchase = Purchase(item, 1)
             purchase.decrease_amount()
 
         error = catched.exception
         self.assertEqual(error.message, 'Item amount cannot be less than 1.')
 
     def test_should_decrease_item_amount_by_one(self):
-        now = datetime.utcnow()
-
         item = Item(self.sku, self.name, self.price)
-        purchase = Purchase(item, 3, now)
+        purchase = Purchase(item, 3)
 
         self.assertEqual(purchase.amount, 3)
 
@@ -123,7 +106,7 @@ class PurchaseBasketTestCase(unittest.TestCase):
         self.assertEqual(self.purchase_basket.purchases[self.item.sku].amount, 1)
 
     def test_should_increment_amount_by_one_of_existing_item(self):
-        self.purchase_basket.purchases[self.item.sku] = Purchase(self.item, 1, datetime.utcnow())
+        self.purchase_basket.purchases[self.item.sku] = Purchase(self.item, 1)
         self.assertEqual(self.purchase_basket.purchases[self.item.sku].amount, 1)
 
         self.purchase_basket.add_item(self.item)

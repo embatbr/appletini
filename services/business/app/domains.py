@@ -1,9 +1,11 @@
 """This module contains the models (items, pricing rules and etc.).
+
+Validations of correct parameter type are not necessary, since those are
+guaranteed by the callers.
 """
 
 
 import re
-from datetime import datetime
 
 from money import Money
 
@@ -17,8 +19,6 @@ class ItemError(Exception):
 class Item(object):
 
     def __init__(self, sku, name, price):
-        """Type and "None" validation are executed in the module `logic`.
-        """
         if not re.match('^[0-9]+\.[0-9]{2}$', price):
             raise ItemError('Amount %s is not in the correct format.' % price)
 
@@ -38,13 +38,12 @@ class PurchaseError(Exception):
 
 class Purchase(object):
 
-    def __init__(self, item, amount, timestamp):
+    def __init__(self, item, amount):
         if amount < 1:
             raise PurchaseError('Must purchase at least 1 item.')
 
         self.item = item
         self.amount = amount
-        self.timestamp = timestamp
 
     def increase_amount(self):
         self.amount = self.amount + 1
@@ -71,7 +70,7 @@ class PurchaseBasket(object):
         if item.sku in self.purchases:
             self.purchases[item.sku].increase_amount()
         else:
-            self.purchases[item.sku] = Purchase(item, 1, datetime.utcnow())
+            self.purchases[item.sku] = Purchase(item, 1)
 
     def remove_item(self, sku, remove_all=False):
         if sku not in self.purchases:
