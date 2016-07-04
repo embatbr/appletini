@@ -49,41 +49,89 @@ class Item(object):
         return '%s %s $%s' % (self.sku, self.name, self.price.amount)
 
 
-class OrderError(Exception):
+class PurchaseError(Exception):
 
     def __init__(self, message):
         self.message = message
 
 
-class Order(object):
+class Purchase(object):
 
     def __init__(self, item, amount, timestamp):
         if (not item) or (not isinstance(item, Item)):
-            raise OrderError('`item` must be of type `Item`.')
+            raise PurchaseError('`item` must be of type `Item`.')
 
         if (amount is None) or (not isinstance(amount, int)):
-            raise OrderError('`amount` must be of type int.')
+            raise PurchaseError('`amount` must be of type int.')
 
         if amount < 1:
-            raise OrderError('Must order at least 1 item.')
+            raise PurchaseError('Must purchase at least 1 item.')
 
         if (timestamp is None) or (not isinstance(timestamp, datetime)):
-            raise OrderError('`timestamp` must be of type datetime.datetime')
+            raise PurchaseError('`timestamp` must be of type datetime.datetime')
 
         self.item = item
         self.amount = amount
         self.timestamp = timestamp
+        self.finished = False
 
     def increase_amount(self):
+        if self.finished:
+            raise PurchaseError('Purchase already finished.')
+
         self.amount = self.amount + 1
 
     def decrease_amount(self):
+        if self.finished:
+            raise PurchaseError('Purchase already finished.')
+
         if self.amount == 1:
-            raise OrderError('Item amount cannot be less than 1.')
+            raise PurchaseError('Item amount cannot be less than 1.')
 
         self.amount = self.amount - 1
 
+    def finish(self):
+        self.finished = True
 
-class Purchase(object):
 
-    pass
+class PurchaseBasketError(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+
+class PurchaseBasket(object):
+
+    def __init__(self):
+        self.purchases = dict()
+
+    def add_item(self, item):
+        if item.sku in self.purchases:
+            raise PurchaseBasketError('Cannot add an existing item.')
+
+        self.purchases[item.sku] = Purchase(item, 1, datetime.utcnow())
+
+    def increase_item_amount(self, sku):
+        if sku not in self.purchases:
+            raise PurchaseBasketError('Cannot increase amount of non-existing item.')
+
+        self.purchases[sku].increase_amount()
+
+    def decrease_item_amount(self, sku):
+        if sku not in self.purchases:
+            raise PurchaseBasketError('Cannot decrease amount of non-existing item.')
+
+        self.purchases[sku].decrease_amount()
+
+    def remove_item(self, sku):
+        if sku not in self.purchases:
+            raise PurchaseBasketError('Cannot remove non-existing item.')
+
+        del self.purchases[sku]
+
+    def clear(self):
+        if not self.purchases:
+            raise PurchaseBasketError('Cannot clear empty basket.')
+
+        del self.purchases
+        self.purchases = dict()
