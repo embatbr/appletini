@@ -1,5 +1,6 @@
 # Appletini
-Mini mock Apple Store
+
+The tiny mock Apple Store.
 
 Appletini is a mock Apple Store. It may be composed of one or more RESTful services (e.g., front-end and back-end microservices).
 
@@ -41,24 +42,10 @@ All steps must have tests
 3. Use microservices to create a front-end to be used
     - Detail this topic when necessary
 
-## Development
+## Services
 
-**REMEMBER to activate the Python virtual environment!**
+There are three services:
 
-### Preparation
-
-- Create a Python virtual environment typing `mkvirtualenv --python=/path/to/python3 appletini-backend` (`virtualenvwrapper` is necessary)
-- Install Flask: `pip install flask`
-
-### TDD
-
-In each subproject directory (`backend`, `frontend`, `auth` and etc.) the subdirectories `app` and `test` contains the aplication and testing codes, respectively. Both, to be considered Python packages must have a `__init__.py` file, even if empty.
-
-Tests are executed typing `python -m unittest discover` when inside the subproject directory.
-
-### Services
-
-There are three services: `presentation`, `business-logic` and `data-access`.
-
-#### business-logic
-
+- presentation
+- [business](./services/business/README.md)
+- storage
