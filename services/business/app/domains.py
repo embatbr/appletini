@@ -3,6 +3,7 @@
 
 
 import re
+from datetime import datetime
 
 from money import Money
 
@@ -43,3 +44,46 @@ class Item(object):
             raise ItemError('Amount %s is not in the correct format.' % amount)
 
         self.price = Money(amount, currency)
+
+    def describe(self):
+        return '%s %s $%s' % (self.sku, self.name, self.price.amount)
+
+
+class OrderError(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+
+class Order(object):
+
+    def __init__(self, item, amount, timestamp):
+        if (not item) or (not isinstance(item, Item)):
+            raise OrderError('`item` must be of type `Item`.')
+
+        if (amount is None) or (not isinstance(amount, int)):
+            raise OrderError('`amount` must be of type int.')
+
+        if amount < 1:
+            raise OrderError('Must order at least 1 item.')
+
+        if (timestamp is None) or (not isinstance(timestamp, datetime)):
+            raise OrderError('`timestamp` must be of type datetime.datetime')
+
+        self.item = item
+        self.amount = amount
+        self.timestamp = timestamp
+
+    def increase_amount(self):
+        self.amount = self.amount + 1
+
+    def decrease_amount(self):
+        if self.amount == 1:
+            raise OrderError('Item amount cannot be less than 1.')
+
+        self.amount = self.amount - 1
+
+
+class Purchase(object):
+
+    pass
