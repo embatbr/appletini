@@ -15,7 +15,7 @@ Appletini is a mock Apple Store. It may be composed of one or more RESTful servi
     - An object to define the promotion rules
     - Must be flexible, so "an application inside the application"
         - Maybe define a simple coding
-    - Check confliction rules and think how to solve it
+    - Check conflicting rules and think how to solve it
         - Tree of possibilities?
         - Remember compiler theory
 - Checkout core
@@ -32,7 +32,7 @@ All steps must have tests
 
 1. Create a retail system
     - Database with products descriptions and shopping transactions
-    - Receives a buy order (when the shopping cart) is finished
+    - Receives a buy order (when the shopping cart) is finishedside.
     - Calculates the price and return
 2. Insert the promotions
     - Calculates the rewards for each promotion
@@ -40,3 +40,25 @@ All steps must have tests
     - Updates the value charged
 3. Use microservices to create a front-end to be used
     - Detail this topic when necessary
+
+## Development
+
+**REMEMBER to activate the Python virtual environment!**
+
+### Preparation
+
+- Create a Python virtual environment typing `mkvirtualenv --python=/path/to/python3 appletini-backend` (`virtualenvwrapper` is necessary)
+- Install Flask: `pip install flask`
+
+### TDD
+
+In each subproject directory (`backend`, `frontend`, `auth` and etc.) the subdirectories `app` and `test` contains the aplication and testing codes, respectively. Both, to be considered Python packages must have a `__init__.py` file, even if empty.
+
+Tests are executed typing `python -m unittest discover` when inside the subproject directory.
+
+### Services
+
+There are three services: `presentation`, `business-logic` and `data-access`.
+
+#### business-logic
+

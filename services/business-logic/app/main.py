@@ -1,0 +1,2 @@
+"""Service starting point.
+"""
