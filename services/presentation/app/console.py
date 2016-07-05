@@ -15,15 +15,16 @@ class Writer(object):
     def write(self, screen):
         print(screen)
 
-    def write_commands(self):
+    def write_help(self):
         screen = '\tCOMMANDS'
         screen = '%s\nhelp\t\tshows this list' % screen
         screen = '%s\nproducts\tshows list of products' % screen
         screen = '%s\nbasket\t\tshows current basket' % screen
-        screen = '%s\nbuy <SKU>\tadd product to basket given SKU' % screen
-        screen = '%s\nrm <SKU> [all]\tremoves product from basket' % screen
-        screen = '%s\ncheckout\tfinished shopping and show basket' % screen
-        screen = '%s\npay\t\tpay products and cleans basket' % screen
+        screen = '%s\nbuy <SKU>\tadds product to basket given SKU' % screen
+        screen = '%s\nrm <SKU> [all] \tremoves product (1-by-1 or all items) from basket' % screen
+        screen = '%s\nclear\t\tremoves all products (clears) from basket' % screen
+        screen = '%s\ncheckout\tfinishes shopping and shows basket' % screen
+        screen = '%s\npay\t\tgenerates invoice and cleans basket' % screen
         screen = '%s\nexit\t\tleaves APPLETINI' % screen
         screen = '%s\n' % screen
 
@@ -54,39 +55,46 @@ class Writer(object):
 class Terminal(object):
 
     def __init__(self, reader, writer):
-        """There are 3 screens: SHOPPING, PAYMENT, INVOICE
-        """
         self.reader = reader
         self.writer = writer
         self.alive = False
         self.cmd = None
 
-        self.screens = {
-            'help' : 'write_commands',
-            'products' : 'write_products',
-            'basket' : 'write_basket',
-            'exit' : 'end'
-        }
+        self.screens = set([
+            'help',
+            'products',
+            'basket',
+            'exit'
+        ])
 
     def init(self):
         print('Welcome to APPLETINI\n')
 
         self.alive = True
-        self.writer.write_commands()
+        self.writer.write_help()
 
     def run(self):
         self.init()
         while self.alive:
             self.cmd = self.reader.read()
 
-            screen_func = self.screens[self.cmd]
-            func = getattr(self, screen_func, None)
+            if self.cmd in self.screens:
+                func = getattr(self, self.cmd)
+                func()
+            else:
+                self.writer.write('Unknown command')
+                self.help()
 
-            if not func:
-                func = getattr(self.writer, screen_func, None)
+    def help(self):
+        self.writer.write_help()
 
-            func()
+    def products(self):
+        self.writer.write_products()
 
+    def basket(self):
+        self.writer.write_basket()
 
-    def end(self):
+    def exit(self):
         self.alive = False
+
+        self.writer.write('Thanks. Come back soon.')
