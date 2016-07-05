@@ -87,3 +87,11 @@ class PurchaseBasket(object):
 
         del self.purchases
         self.purchases = dict()
+
+    def is_empty(self):
+        return not self.purchases
+
+
+class Invoice(object):
+
+    pass

@@ -19,14 +19,15 @@ The file *main.py* is used only to start the application. The real code is in th
     - Handles HTTP requests (validation included)
     - Uses REST principles
 - domains
-    - Describes the application modules
+    - Describes the application models
         - Items
-        - ShoppingCart
-        - PricingRule
+        - Purchases
+        - Purchases basket
+        - Pricing rules
 - logic
     - Groups items
     - Sums prices
-    - Calculates discounts (promotions from PricingRule objects)
+    - Calculates discounts (promotions from pricing rules)
 - web_clients
     - Sends HTTP requests to other services
         - Data to the storage service (data access)

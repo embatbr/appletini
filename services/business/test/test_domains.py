@@ -162,3 +162,10 @@ class PurchaseBasketTestCase(unittest.TestCase):
         self.purchase_basket.purchases.clear()
 
         self.assertFalse(self.purchase_basket.purchases)
+
+    def test_should_be_considered_empty_if_has_no_purchase(self):
+        self.assertTrue(self.purchase_basket.is_empty())
+
+        self.purchase_basket.add_item(self.item)
+
+        self.assertFalse(self.purchase_basket.is_empty())
