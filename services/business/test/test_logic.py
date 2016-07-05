@@ -124,7 +124,7 @@ class ShoppingTestCase(unittest.TestCase):
         self.shopping.checkout()
         invoice = self.shopping.charge()
 
-        self.assertEqual(self.shopping.state, 'FINISHED')
+        self.assertEqual(self.shopping.state, 'INVOICE')
         self.assertIsNotNone(invoice)
 
         # TODO detalhar invoice (app.domains.Invoice) com itens pedidos,

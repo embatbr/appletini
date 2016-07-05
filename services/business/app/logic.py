@@ -16,7 +16,7 @@ class Shopping(object):
     """
         SHOPPING - acquiring or removing products
         PAYMENT  - finished the shopping, waiting for user to pay (TODO poder voltar para SHOPPING)
-        FINISHED  - user paid, shopping ended
+        INVOICE  - user paid, shopping ended
     """
     def __init__(self, products):
         # all products available to buy
@@ -56,6 +56,6 @@ class Shopping(object):
         if self.state != 'PAYMENT':
             raise ShoppingError('Payments are allowed only when state is PAYMENT.')
 
-        self.state = 'FINISHED'
+        self.state = 'INVOICE'
 
         return Invoice(self.purchase_basket)

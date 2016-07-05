@@ -6,9 +6,9 @@ Microservice to execute the business logic (group items, sum prices and calculat
 
 ### Preparation
 
-- Create a Python virtual environment typing `mkvirtualenv --python=/path/to/python3 aptn-business` (`virtualenvwrapper` is necessary)
+- Create a Python virtual environment typing `mkvirtualenv --python=/path/to/python3 aptn-business` (`virtualenvwrapper` is necessary) on terminal
 - Start it: `workon aptn-business`
-- Install Flask: `pip install flask`
+- Install Flask: `pip install falcon`
 - Install Money: `pip install money`
 
 ### Modules
