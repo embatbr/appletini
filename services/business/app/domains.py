@@ -1,4 +1,4 @@
-"""This module contains the models (items, pricing rules and etc.).
+"""This module contains the models (products, pricing rules and etc.).
 
 Validations of correct parameter type are not necessary, since those are
 guaranteed by the callers.
@@ -10,17 +10,17 @@ import re
 from money import Money
 
 
-class ItemError(Exception):
+class ProductError(Exception):
 
     def __init__(self, message):
         self.message = message
 
 
-class Item(object):
+class Product(object):
 
     def __init__(self, sku, name, price):
         if not re.match('^[0-9]+\.[0-9]{2}$', price):
-            raise ItemError('Amount %s is not in the correct format.' % price)
+            raise ProductError('Amount %s is not in the correct format.' % price)
 
         self.sku = sku.strip()
         self.name = name.strip()
@@ -38,11 +38,11 @@ class PurchaseError(Exception):
 
 class Purchase(object):
 
-    def __init__(self, item, amount):
+    def __init__(self, product, amount):
         if amount < 1:
             raise PurchaseError('Must purchase at least 1 item.')
 
-        self.item = item
+        self.product = product
         self.amount = amount
 
     def increase_amount(self):
@@ -50,9 +50,13 @@ class Purchase(object):
 
     def decrease_amount(self):
         if self.amount == 1:
-            raise PurchaseError('Item amount cannot be less than 1.')
+            raise PurchaseError('Product amount cannot be less than 1.')
 
         self.amount = self.amount - 1
+
+    def calculate_price(self):
+        total_price = self.amount * self.product.price
+        return total_price.amount
 
 
 class PurchaseBasketError(Exception):
@@ -66,15 +70,15 @@ class PurchaseBasket(object):
     def __init__(self):
         self.purchases = dict()
 
-    def add_item(self, item):
-        if item.sku in self.purchases:
-            self.purchases[item.sku].increase_amount()
+    def add_product(self, product):
+        if product.sku in self.purchases:
+            self.purchases[product.sku].increase_amount()
         else:
-            self.purchases[item.sku] = Purchase(item, 1)
+            self.purchases[product.sku] = Purchase(product, 1)
 
-    def remove_item(self, sku, remove_all=False):
+    def remove_product(self, sku, remove_all=False):
         if sku not in self.purchases:
-            raise PurchaseBasketError('Cannot remove non-existing item.')
+            raise PurchaseBasketError('Cannot remove non-existing product item.')
 
         if remove_all or self.purchases[sku].amount == 1:
             del self.purchases[sku]
@@ -91,7 +95,34 @@ class PurchaseBasket(object):
     def is_empty(self):
         return not self.purchases
 
+    def calculate_price(self):
+        return sum([purchase.calculate_price() for purchase in self.purchases.values()])
+
 
 class Invoice(object):
 
-    pass
+    def __init__(self, purchase_basket):
+        self.items = list()
+        self.total_price = None
+
+        self.__process(purchase_basket)
+
+    def __process(self, purchase_basket):
+        for (sku, purchase) in purchase_basket.purchases.items():
+            # purchase = purchases[sku]
+            amount = purchase.amount
+            price = amount * purchase.product.price
+
+            item = (sku, str(amount), '$%s' % price.amount)
+            self.items.append(item)
+
+        self.total_price = purchase_basket.calculate_price()
+
+    # def report(self):
+    #     report = map(lambda item: '---'.join(item), self.items)
+    #     report = list(report)
+    #     report = '\n'.join(report)
+
+    #     report = '%s\n%s\n$%s' % (report, '-'*15, self.total_price)
+
+    #     return report

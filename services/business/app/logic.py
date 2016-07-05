@@ -3,7 +3,7 @@ discounts).
 """
 
 
-from app.domains import Item, PurchaseBasket
+from app.domains import Product, PurchaseBasket, Invoice
 
 
 class ShoppingError(Exception):
@@ -13,42 +13,35 @@ class ShoppingError(Exception):
 
 
 class Shopping(object):
-
-    SHOPPING_STATES = [
-        'SHOPPING', # acquiring or removing items
-        'PAYMENT',  # finished the shopping, waiting for user to pay (may return to SHOPPING)
-        'CHARGED'   # user paid, shopping ended
-    ]
-
-    def __init__(self):
-        # all items available to buy
-        self.items = {
-            'ipd' : Item('ipd', 'Super iPad', '549.99'),
-            'mbp' : Item('mbp', 'MacBook Pro', '1399.99'),
-            'atv' : Item('atv', 'Apple TV', '109.50'),
-            'vga' : Item('vga', 'VGA adapter', '30.00')
-        }
+    """
+        SHOPPING - acquiring or removing products
+        PAYMENT  - finished the shopping, waiting for user to pay (TODO poder voltar para SHOPPING)
+        FINISHED  - user paid, shopping ended
+    """
+    def __init__(self, products):
+        # all products available to buy
+        self.products = products
 
         self.purchase_basket = PurchaseBasket()
         self.state = 'SHOPPING'
 
-    def purchase_item(self, sku):
+    def purchase_product(self, sku):
         if self.state != 'SHOPPING':
             raise ShoppingError('Purchases are allowed only when state is SHOPPING.')
 
-        if sku not in self.items:
-            raise ShoppingError('Cannot purchase an invalid item.')
+        if sku not in self.products:
+            raise ShoppingError('Cannot purchase an invalid product.')
 
-        self.purchase_basket.add_item(self.items[sku])
+        self.purchase_basket.add_product(self.products[sku])
 
-    def return_item(self, sku, return_all=False):
+    def return_product(self, sku, return_all=False):
         if self.state != 'SHOPPING':
             raise ShoppingError('Returns are allowed only when state is SHOPPING.')
 
-        if sku not in self.items:
-            raise ShoppingError('Cannot return an invalid item.')
+        if sku not in self.products:
+            raise ShoppingError('Cannot return an invalid product.')
 
-        self.purchase_basket.remove_item(sku, remove_all=return_all)
+        self.purchase_basket.remove_product(sku, remove_all=return_all)
 
     def checkout(self):
         if self.state != 'SHOPPING':
@@ -63,6 +56,6 @@ class Shopping(object):
         if self.state != 'PAYMENT':
             raise ShoppingError('Payments are allowed only when state is PAYMENT.')
 
-        self.state = 'CHARGED'
+        self.state = 'FINISHED'
 
-        # TODO return an app.domains.Invoice object
+        return Invoice(self.purchase_basket)
