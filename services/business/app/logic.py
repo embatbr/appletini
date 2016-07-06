@@ -9,14 +9,12 @@ from configs import BaseError
 class Shopping(object):
     """
         SHOPPING - acquiring or removing products
-        PAYMENT  - finished the shopping, waiting for user to pay (TODO poder voltar para SHOPPING)
-        INVOICE  - user paid, shopping ended
+        PAYMENT  - finished the shopping, paid or waiting for payment (nevermind)
     """
     def __init__(self, products, purchase_basket):
         self.products = products # products available
 
         self.purchase_basket = purchase_basket
-        self.state = 'SHOPPING'
 
     def export_products(self):
         ret = dict()
@@ -43,9 +41,6 @@ class Shopping(object):
             raise err
 
     def purchase_product(self, sku):
-        if self.state != 'SHOPPING':
-            raise BaseError('Purchases are allowed only when state is SHOPPING.')
-
         if sku not in self.products:
             raise BaseError('Cannot purchase an invalid product.')
 
@@ -54,9 +49,6 @@ class Shopping(object):
         return self.purchase_basket.get_invoice()
 
     def return_product(self, sku):
-        if self.state != 'SHOPPING':
-            raise BaseError('Returns are allowed only when state is SHOPPING.')
-
         if sku not in self.products:
             raise BaseError('Cannot return an invalid product.')
 
@@ -68,16 +60,10 @@ class Shopping(object):
         return self.purchase_basket.get_invoice()
 
     def checkout(self):
-        if self.state != 'SHOPPING':
-            raise BaseError('Checkouts are allowed only when state is SHOPPING.')
-
         if self.purchase_basket.is_empty():
             raise BaseError('Cannot checkout with an empty basket.')
 
-        self.state = 'PAYMENT'
+        invoice = self.purchase_basket.get_invoice()
+        self.clear_basket()
 
-    def charge(self):
-        if self.state != 'PAYMENT':
-            raise BaseError('Payments are allowed only when state is PAYMENT.')
-
-        self.state = 'INVOICE'
+        return invoice

@@ -32,6 +32,9 @@ class BusinessClient(object):
     def clear_basket(self):
         return self.shopping_gets('clear-basket')
 
+    def checkout(self):
+        return self.shopping_gets('checkout')
+
     def shopping_gets(self, action):
         url = '%s/shopping/%s' % (self.baseurl, action)
 

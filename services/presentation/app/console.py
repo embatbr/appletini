@@ -30,7 +30,6 @@ class Writer(object):
         screen = '%s\nremove <SKU> \tremoves product from basket' % screen
         screen = '%s\nclear\t\tremoves all products (clears) from basket' % screen
         screen = '%s\ncheckout\tfinishes shopping and shows basket' % screen
-        screen = '%s\npay\t\tgenerates invoice and cleans basket' % screen
         screen = '%s\npromotions\tshows current promotions' % screen
         screen = '%s\nexit\t\tleaves APPLETINI' % screen
         screen = '%s\n' % screen
@@ -49,7 +48,8 @@ class Writer(object):
 
             screen = '%s\n%s\t%s\t$%s' % (screen, sku, name, price)
 
-        screen = '%s\n' % screen
+        new_line = '\n' if products else ''
+        screen = '%s%s' % (screen, new_line)
 
         self.write(screen)
 
@@ -66,7 +66,8 @@ class Writer(object):
 
             screen = '%s\n%s\t%s\t%s\t$%s' % (screen, sku, name, amount, price)
 
-        screen = '%s\n\nTOTAL:\t\t\t\t$%s\n' % (screen, basket['total_price'])
+        new_line = '\n' if items else ''
+        screen = '%s%s\nTOTAL:\t\t\t\t$%s\n' % (screen, new_line, basket['total_price'])
 
         self.write(screen)
 
@@ -88,6 +89,7 @@ class Terminal(object):
             'buy',
             'remove',
             'clear',
+            'checkout',
             'exit'
         ])
 
@@ -163,6 +165,16 @@ class Terminal(object):
 
     def cmd_clear(self, args):
         ret = self.business_client.clear_basket()
+        payload = ret['payload']
+
+        if ret['success']:
+            payload = ast.literal_eval(payload)
+            self.writer.write_basket(payload)
+        else:
+            self.writer.write_error(payload)
+
+    def cmd_checkout(self, args):
+        ret = self.business_client.checkout()
         payload = ret['payload']
 
         if ret['success']:

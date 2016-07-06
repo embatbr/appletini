@@ -30,19 +30,20 @@ class RESTfulShopping(object):
         self.shopping = shopping
 
     def on_get(self, req, resp, action):
-        if action not in ['products', 'basket', 'clear-basket']:
+        if action not in ['products', 'basket', 'clear-basket', 'checkout']:
             resp.status = falcon.HTTP_400
             return
 
         payload = None
         success = False
-        if action == 'clear-basket':
+        if action in ['clear-basket', 'checkout']:
             try:
-                payload = self.shopping.clear_basket()
+                payload = getattr(self.shopping, action.replace('-', '_'))()
                 success = True
 
             except BaseError as err:
                 payload = err.message
+
         else:
             payload = getattr(self.shopping, 'export_%s' % action)()
             success = True
