@@ -87,6 +87,7 @@ class Terminal(object):
             'basket',
             'buy',
             'remove',
+            'clear',
             'exit'
         ])
 
@@ -159,6 +160,16 @@ class Terminal(object):
 
         except Exception as err:
             self.writer.write_error(err)
+
+    def cmd_clear(self, args):
+        ret = self.business_client.clear_basket()
+        payload = ret['payload']
+
+        if ret['success']:
+            payload = ast.literal_eval(payload)
+            self.writer.write_basket(payload)
+        else:
+            self.writer.write_error(payload)
 
     def cmd_exit(self, args):
         self.alive = False

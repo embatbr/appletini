@@ -31,6 +31,17 @@ class Shopping(object):
 
         return ret
 
+    def export_basket(self):
+        return self.purchase_basket.get_invoice()
+
+    def clear_basket(self):
+        try:
+            self.purchase_basket.clear()
+            return self.export_basket()
+
+        except BaseError as err:
+            raise err
+
     def purchase_product(self, sku):
         if self.state != 'SHOPPING':
             raise BaseError('Purchases are allowed only when state is SHOPPING.')
@@ -54,9 +65,6 @@ class Shopping(object):
         except BaseError as err:
             raise err
 
-        return self.purchase_basket.get_invoice()
-
-    def export_basket(self):
         return self.purchase_basket.get_invoice()
 
     def checkout(self):

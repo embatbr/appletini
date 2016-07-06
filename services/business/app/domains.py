@@ -67,7 +67,7 @@ class PurchaseBasket(object):
             del self.purchases[sku]
 
     def clear(self):
-        if not self.purchases:
+        if self.is_empty():
             raise BaseError('Cannot clear empty basket.')
 
         del self.purchases
