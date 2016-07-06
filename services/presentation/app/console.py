@@ -27,7 +27,7 @@ class Writer(object):
         screen = '%s\nproducts\tshows list of products' % screen
         screen = '%s\nbasket\t\tshows current basket' % screen
         screen = '%s\nbuy <SKU>\tadds product to basket given SKU' % screen
-        screen = '%s\nrm <SKU> \tremoves product from basket' % screen
+        screen = '%s\nremove <SKU> \tremoves product from basket' % screen
         screen = '%s\nclear\t\tremoves all products (clears) from basket' % screen
         screen = '%s\ncheckout\tfinishes shopping and shows basket' % screen
         screen = '%s\npay\t\tgenerates invoice and cleans basket' % screen
@@ -86,7 +86,7 @@ class Terminal(object):
             'products',
             'basket',
             'buy',
-            'rm',
+            'remove',
             'exit'
         ])
 
@@ -104,22 +104,22 @@ class Terminal(object):
             args = cmdline[1 : ]
 
             if self.cmd in self.screens:
-                func = getattr(self, self.cmd)
+                func = getattr(self, 'cmd_%s' % self.cmd)
                 func(args)
             else:
                 self.writer.write('Unknown command.')
-                self.help(args)
+                self.cmd_help(args)
 
-    def help(self, args):
+    def cmd_help(self, args):
         self.writer.write_help()
 
-    def products(self, args):
-        self.products_or_basket('products')
+    def cmd_products(self, args):
+        self.__cmd_products_or_basket('products')
 
-    def basket(self, args):
-        self.products_or_basket('basket')
+    def cmd_basket(self, args):
+        self.__cmd_products_or_basket('basket')
 
-    def products_or_basket(self, action):
+    def __cmd_products_or_basket(self, action):
         try:
             ret = getattr(self.business_client, 'get_%s' % action)()
             payload = ret['payload']
@@ -133,13 +133,13 @@ class Terminal(object):
         except Exception as err:
             self.writer.write_error(err)
 
-    def buy(self, args):
-        self.buy_or_rm('purchase', args)
+    def cmd_buy(self, args):
+        self.__cmd_buy_or_remove('buy', args)
 
-    def rm(self, args):
-        self.buy_or_rm('return', args)
+    def cmd_remove(self, args):
+        self.__cmd_buy_or_remove('remove', args)
 
-    def buy_or_rm(self, action, args):
+    def __cmd_buy_or_remove(self, action, args):
         if not args:
             self.writer.write('You must provide the SKU.')
             self.writer.write_help()
@@ -148,7 +148,7 @@ class Terminal(object):
         try:
             sku = args[0]
 
-            ret = self.business_client.buy_or_rm(action, sku)
+            ret = getattr(self.business_client, '%s' % action)(sku)
             payload = ret['payload']
 
             if ret['success']:
@@ -160,7 +160,7 @@ class Terminal(object):
         except Exception as err:
             self.writer.write_error(err)
 
-    def exit(self, args):
+    def cmd_exit(self, args):
         self.alive = False
 
         self.writer.write('Thanks. Come back soon.')

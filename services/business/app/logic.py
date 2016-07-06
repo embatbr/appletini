@@ -3,7 +3,6 @@ discounts).
 """
 
 
-from domains import PurchaseBasket
 from configs import BaseError
 
 
@@ -13,11 +12,10 @@ class Shopping(object):
         PAYMENT  - finished the shopping, waiting for user to pay (TODO poder voltar para SHOPPING)
         INVOICE  - user paid, shopping ended
     """
-    def __init__(self, products):
-        # all products available to buy
-        self.products = products
+    def __init__(self, products, purchase_basket):
+        self.products = products # products available
 
-        self.purchase_basket = PurchaseBasket()
+        self.purchase_basket = purchase_basket
         self.state = 'SHOPPING'
 
     def export_products(self):

@@ -6,7 +6,7 @@ import falcon
 
 from web_api import RESTfulServer
 from logic import Shopping
-from domains import Product
+from domains import Product, PurchaseBasket
 from configs import products as products_configs
 
 
@@ -26,7 +26,9 @@ def __generate_products(items):
 falcon_api = application = falcon.API()
 
 items = products_configs['items']
-shopping = Shopping(__generate_products(items))
+products = __generate_products(items)
+purchase_basket = PurchaseBasket()
+shopping = Shopping(products, purchase_basket)
 
 restful_endpoint = RESTfulServer(falcon_api, shopping)
 restful_endpoint.expose()

@@ -4,6 +4,7 @@ class BaseError(Exception):
         self.message = message
 
 
+# This should be in the storage service
 products = {
     'items' : {
         'ipd' : {
