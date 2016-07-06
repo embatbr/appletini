@@ -1,5 +1,8 @@
+"""Non-graphic user interface.
 """
-"""
+
+
+import ast
 
 
 class Reader(object):
@@ -7,7 +10,7 @@ class Reader(object):
     def read(self):
         cmdline = input('>>> ')
 
-        return cmdline
+        return cmdline.split(' ')
 
 
 class Writer(object):
@@ -15,48 +18,61 @@ class Writer(object):
     def write(self, screen):
         print(screen)
 
+    def write_error(self, err):
+        self.write('err: %s' % err)
+
     def write_help(self):
-        screen = '\tCOMMANDS'
+        screen = '\n\tHELP\nCOMMAND\t\tDESCRIPTION\n'
         screen = '%s\nhelp\t\tshows this list' % screen
         screen = '%s\nproducts\tshows list of products' % screen
         screen = '%s\nbasket\t\tshows current basket' % screen
         screen = '%s\nbuy <SKU>\tadds product to basket given SKU' % screen
-        screen = '%s\nrm <SKU> [all] \tremoves product (1-by-1 or all items) from basket' % screen
+        screen = '%s\nrm <SKU> \tremoves product from basket' % screen
         screen = '%s\nclear\t\tremoves all products (clears) from basket' % screen
         screen = '%s\ncheckout\tfinishes shopping and shows basket' % screen
         screen = '%s\npay\t\tgenerates invoice and cleans basket' % screen
+        screen = '%s\npromotions\tshows current promotions' % screen
         screen = '%s\nexit\t\tleaves APPLETINI' % screen
         screen = '%s\n' % screen
 
         self.write(screen)
 
+    # TODO get from service **business** (and later, from **storage**)
     def write_products(self):
-        screen = '\tPRODUCTS\nSKU---NAME----------PRICE-----\n%s' % ('-' * 30)
-        screen = '%s\nipd---Super iPad----$549.99---' % screen
-        screen = '%s\nmbp---MacBook Pro---$1399.99--' % screen
-        screen = '%s\natv---Apple TV------$109.50---' % screen
-        screen = '%s\nvga---VGA adapter---$30.00----' % screen
-        screen = '%s\n%s\n' % (screen, '-' * 30)
+        screen = '\n\tPRODUCTS\nSKU\tNAME\t\tPRICE\n'
+        screen = '%s\nipd\tSuper iPad\t$549.99' % screen
+        screen = '%s\nmbp\tMacBook Pro\t$1399.99' % screen
+        screen = '%s\natv\tApple TV\t$109.50' % screen
+        screen = '%s\nvga\tVGA adapter\t$30.00' % screen
+        screen = '%s\n' % screen
 
         self.write(screen)
 
-    def write_basket(self):
-        screen = '\tBASKET\nSKU---AMOUNT--------PRICE-----\n%s' % ('-' * 30)
-        screen = '%s\nipd---%s----%s---' % (screen, 'A', 'P')
-        screen = '%s\nmbp---%s---%s--' % (screen, 'A', 'P')
-        screen = '%s\natv---%s------%s---' % (screen, 'A', 'P')
-        screen = '%s\nvga---%s---%s----' % (screen, 'A', 'P')
-        screen = '%s\n%s\n' % (screen, '-' * 30)
-        screen = '%sTOTAL: ' % (screen)
+    def write_basket(self, basket):
+        screen = '\n\tBASKET\nSKU\tNAME\t\tAMOUNT\tPRICE\n'
+
+        items = basket['items']
+        for sku in items:
+            item = items[sku]
+
+            name = item['name']
+            amount = item['amount']
+            price = item['price']
+
+            screen = '%s\n%s\t%s\t%s\t$%s' % (screen, sku, name, amount, price)
+
+        screen = '%s\n\nTOTAL:\t\t\t\t$%s\n' % (screen, basket['total_price'])
 
         self.write(screen)
 
 
 class Terminal(object):
 
-    def __init__(self, reader, writer):
+    def __init__(self, reader, writer, business_client):
         self.reader = reader
         self.writer = writer
+        self.business_client = business_client
+
         self.alive = False
         self.cmd = None
 
@@ -64,11 +80,13 @@ class Terminal(object):
             'help',
             'products',
             'basket',
+            'buy',
+            'rm',
             'exit'
         ])
 
     def init(self):
-        print('Welcome to APPLETINI\n')
+        self.writer.write('Welcome to APPLETINI\n')
 
         self.alive = True
         self.writer.write_help()
@@ -76,25 +94,54 @@ class Terminal(object):
     def run(self):
         self.init()
         while self.alive:
-            self.cmd = self.reader.read()
+            cmdline = self.reader.read()
+            self.cmd = cmdline[0]
+            args = cmdline[1 : ]
 
             if self.cmd in self.screens:
                 func = getattr(self, self.cmd)
-                func()
+                func(args)
             else:
-                self.writer.write('Unknown command')
-                self.help()
+                self.writer.write('Unknown command.')
+                self.help(args)
 
-    def help(self):
+    def help(self, args):
         self.writer.write_help()
 
-    def products(self):
+    def products(self, args):
         self.writer.write_products()
 
-    def basket(self):
-        self.writer.write_basket()
+    def basket(self, args):
+        pass
 
-    def exit(self):
+    def buy(self, args):
+        self.buy_or_rm('purchase', args)
+
+    def rm(self, args):
+        self.buy_or_rm('return', args)
+
+    def buy_or_rm(self, action, args):
+        if not args:
+            self.writer.write('You must provide the SKU.')
+            self.writer.write_help()
+            return
+
+        try:
+            sku = args[0]
+
+            ret = self.business_client.buy_or_rm(action, sku)
+            payload = ret['payload']
+
+            if ret['success']:
+                payload = ast.literal_eval(payload)
+                self.writer.write_basket(payload)
+            else:
+                self.writer.write_error(payload)
+
+        except Exception as err:
+            self.writer.write_error(err)
+
+    def exit(self, args):
         self.alive = False
 
         self.writer.write('Thanks. Come back soon.')

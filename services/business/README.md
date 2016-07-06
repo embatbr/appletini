@@ -10,6 +10,7 @@ Microservice to execute the business logic (group items, sum prices and calculat
 - Start it: `workon aptn-business`
 - Install Flask: `pip install falcon`
 - Install Money: `pip install money`
+- Install Gunicorn: `pip install gunicorn`
 
 ### Modules
 

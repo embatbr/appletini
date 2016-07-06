@@ -3,7 +3,7 @@ discounts).
 """
 
 
-from app.domains import Product, PurchaseBasket, Invoice
+from domains import Product, PurchaseBasket, PurchaseBasketError
 
 
 class ShoppingError(Exception):
@@ -34,14 +34,21 @@ class Shopping(object):
 
         self.purchase_basket.add_product(self.products[sku])
 
-    def return_product(self, sku, return_all=False):
+        return self.purchase_basket.get_invoice()
+
+    def return_product(self, sku):
         if self.state != 'SHOPPING':
             raise ShoppingError('Returns are allowed only when state is SHOPPING.')
 
         if sku not in self.products:
             raise ShoppingError('Cannot return an invalid product.')
 
-        self.purchase_basket.remove_product(sku, remove_all=return_all)
+        try:
+            self.purchase_basket.remove_product(sku)
+        except PurchaseBasketError as err:
+            raise err
+
+        return self.purchase_basket.get_invoice()
 
     def checkout(self):
         if self.state != 'SHOPPING':
@@ -57,5 +64,3 @@ class Shopping(object):
             raise ShoppingError('Payments are allowed only when state is PAYMENT.')
 
         self.state = 'INVOICE'
-
-        return Invoice(self.purchase_basket)
