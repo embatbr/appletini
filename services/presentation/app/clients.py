@@ -24,7 +24,13 @@ class BusinessClient(object):
         self.baseurl = '%s://%s:%s' % (self.protocol, self.host, self.port)
 
     def get_products(self):
-        url = '%s/shopping/products' % (self.baseurl)
+        return self.get_products_or_basket('products')
+
+    def get_basket(self):
+        return self.get_products_or_basket('basket')
+
+    def get_products_or_basket(self, action):
+        url = '%s/shopping/%s' % (self.baseurl, action)
 
         try:
             response = urllib.request.urlopen(url)

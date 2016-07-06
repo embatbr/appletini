@@ -30,10 +30,15 @@ class RESTfulShopping(object):
         self.shopping = shopping
 
     def on_get(self, req, resp, action):
+        if action not in ['products', 'basket']:
+            resp.status = falcon.HTTP_400
+            return
+
         resp.body = str({
             'success' : True,
-            'payload' : str(self.shopping.export_products())
+            'payload' : str(getattr(self.shopping, 'export_%s' % action)())
         })
+
         resp.status = falcon.HTTP_200
 
 

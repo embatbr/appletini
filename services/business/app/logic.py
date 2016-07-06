@@ -58,6 +58,9 @@ class Shopping(object):
 
         return self.purchase_basket.get_invoice()
 
+    def export_basket(self):
+        return self.purchase_basket.get_invoice()
+
     def checkout(self):
         if self.state != 'SHOPPING':
             raise BaseError('Checkouts are allowed only when state is SHOPPING.')

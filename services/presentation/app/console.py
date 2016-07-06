@@ -114,21 +114,24 @@ class Terminal(object):
         self.writer.write_help()
 
     def products(self, args):
+        self.products_or_basket('products')
+
+    def basket(self, args):
+        self.products_or_basket('basket')
+
+    def products_or_basket(self, action):
         try:
-            ret = self.business_client.get_products()
+            ret = getattr(self.business_client, 'get_%s' % action)()
             payload = ret['payload']
 
             if ret['success']:
                 payload = ast.literal_eval(payload)
-                self.writer.write_products(payload)
+                getattr(self.writer, 'write_%s' % action)(payload)
             else:
                 self.writer.write_error(payload)
 
         except Exception as err:
             self.writer.write_error(err)
-
-    def basket(self, args):
-        pass
 
     def buy(self, args):
         self.buy_or_rm('purchase', args)
