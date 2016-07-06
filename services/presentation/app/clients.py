@@ -23,6 +23,18 @@ class BusinessClient(object):
 
         self.baseurl = '%s://%s:%s' % (self.protocol, self.host, self.port)
 
+    def get_products(self):
+        url = '%s/shopping/products' % (self.baseurl)
+
+        try:
+            response = urllib.request.urlopen(url)
+            resp_message = response.read().decode('utf-8')
+
+            return ast.literal_eval(resp_message)
+
+        except urllib.error.HTTPError as err:
+            return err
+
     def buy_or_rm(self, action, sku):
         url = '%s/%s' % (self.baseurl, action)
         body = {

@@ -9,6 +9,8 @@ import re
 
 from money import Money
 
+from configs import BaseError
+
 
 class Product(object):
 
@@ -45,12 +47,6 @@ class Purchase(object):
         }
 
 
-class PurchaseBasketError(Exception):
-
-    def __init__(self, message):
-        self.message = message
-
-
 class PurchaseBasket(object):
 
     def __init__(self):
@@ -64,7 +60,7 @@ class PurchaseBasket(object):
 
     def remove_product(self, sku):
         if sku not in self.purchases:
-            raise PurchaseBasketError('Cannot remove a non-purchased product.')
+            raise BaseError('Cannot remove a non-purchased product.')
 
         self.purchases[sku].decrease_amount()
         if self.purchases[sku].amount == 0:
@@ -72,7 +68,7 @@ class PurchaseBasket(object):
 
     def clear(self):
         if not self.purchases:
-            raise PurchaseBasketError('Cannot clear empty basket.')
+            raise BaseError('Cannot clear empty basket.')
 
         del self.purchases
         self.purchases = dict()

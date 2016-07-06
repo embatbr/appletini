@@ -38,12 +38,17 @@ class Writer(object):
         self.write(screen)
 
     # TODO get from service **business** (and later, from **storage**)
-    def write_products(self):
+    def write_products(self, products):
         screen = '\n\tPRODUCTS\nSKU\tNAME\t\tPRICE\n'
-        screen = '%s\nipd\tSuper iPad\t$549.99' % screen
-        screen = '%s\nmbp\tMacBook Pro\t$1399.99' % screen
-        screen = '%s\natv\tApple TV\t$109.50' % screen
-        screen = '%s\nvga\tVGA adapter\t$30.00' % screen
+
+        for sku in products:
+            product = products[sku]
+
+            name = product['name']
+            price = product['price']
+
+            screen = '%s\n%s\t%s\t$%s' % (screen, sku, name, price)
+
         screen = '%s\n' % screen
 
         self.write(screen)
@@ -109,7 +114,18 @@ class Terminal(object):
         self.writer.write_help()
 
     def products(self, args):
-        self.writer.write_products()
+        try:
+            ret = self.business_client.get_products()
+            payload = ret['payload']
+
+            if ret['success']:
+                payload = ast.literal_eval(payload)
+                self.writer.write_products(payload)
+            else:
+                self.writer.write_error(payload)
+
+        except Exception as err:
+            self.writer.write_error(err)
 
     def basket(self, args):
         pass

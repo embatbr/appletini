@@ -1,16 +1,7 @@
-from domains import Product
+class BaseError(Exception):
 
-
-def __generate_products(items):
-    products = dict()
-
-    for sku in items:
-        name = items[sku]['name']
-        price = items[sku]['price']
-
-        products[sku] = Product(sku, name, price)
-
-    return products
+    def __init__(self, message):
+        self.message = message
 
 
 products = {
@@ -31,6 +22,5 @@ products = {
             'name' : 'VGA adapter',
             'price' : '30.00'
         }
-    },
-    'generator' : __generate_products
+    }
 }

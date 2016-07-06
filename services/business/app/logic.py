@@ -3,13 +3,8 @@ discounts).
 """
 
 
-from domains import Product, PurchaseBasket, PurchaseBasketError
-
-
-class ShoppingError(Exception):
-
-    def __init__(self, message):
-        self.message = message
+from domains import PurchaseBasket
+from configs import BaseError
 
 
 class Shopping(object):
@@ -25,12 +20,25 @@ class Shopping(object):
         self.purchase_basket = PurchaseBasket()
         self.state = 'SHOPPING'
 
+    def export_products(self):
+        ret = dict()
+
+        for sku in self.products:
+            product = self.products[sku]
+
+            ret[sku] = {
+                'name' : product.name,
+                'price' : str(product.price.amount)
+            }
+
+        return ret
+
     def purchase_product(self, sku):
         if self.state != 'SHOPPING':
-            raise ShoppingError('Purchases are allowed only when state is SHOPPING.')
+            raise BaseError('Purchases are allowed only when state is SHOPPING.')
 
         if sku not in self.products:
-            raise ShoppingError('Cannot purchase an invalid product.')
+            raise BaseError('Cannot purchase an invalid product.')
 
         self.purchase_basket.add_product(self.products[sku])
 
@@ -38,29 +46,29 @@ class Shopping(object):
 
     def return_product(self, sku):
         if self.state != 'SHOPPING':
-            raise ShoppingError('Returns are allowed only when state is SHOPPING.')
+            raise BaseError('Returns are allowed only when state is SHOPPING.')
 
         if sku not in self.products:
-            raise ShoppingError('Cannot return an invalid product.')
+            raise BaseError('Cannot return an invalid product.')
 
         try:
             self.purchase_basket.remove_product(sku)
-        except PurchaseBasketError as err:
+        except BaseError as err:
             raise err
 
         return self.purchase_basket.get_invoice()
 
     def checkout(self):
         if self.state != 'SHOPPING':
-            raise ShoppingError('Checkouts are allowed only when state is SHOPPING.')
+            raise BaseError('Checkouts are allowed only when state is SHOPPING.')
 
         if self.purchase_basket.is_empty():
-            raise ShoppingError('Cannot checkout with an empty basket.')
+            raise BaseError('Cannot checkout with an empty basket.')
 
         self.state = 'PAYMENT'
 
     def charge(self):
         if self.state != 'PAYMENT':
-            raise ShoppingError('Payments are allowed only when state is PAYMENT.')
+            raise BaseError('Payments are allowed only when state is PAYMENT.')
 
         self.state = 'INVOICE'

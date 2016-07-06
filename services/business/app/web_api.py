@@ -5,8 +5,7 @@
 import falcon
 import ast
 
-from logic import ShoppingError
-from domains import PurchaseBasketError
+from configs import BaseError
 
 
 class RESTfulServer(object):
@@ -15,6 +14,7 @@ class RESTfulServer(object):
         self.falcon_api = falcon_api
 
         self.restful_endpoints = {
+            '/shopping/{action}': RESTfulShopping(shopping),
             '/purchase' : RESTfulPurchaseReturn(shopping),
             '/return' : RESTfulPurchaseReturn(shopping)
         }
@@ -22,6 +22,19 @@ class RESTfulServer(object):
     def expose(self):
         for (key, restful_endpoint) in self.restful_endpoints.items():
             self.falcon_api.add_route(key, restful_endpoint)
+
+
+class RESTfulShopping(object):
+
+    def __init__(self, shopping):
+        self.shopping = shopping
+
+    def on_get(self, req, resp, action):
+        resp.body = str({
+            'success' : True,
+            'payload' : str(self.shopping.export_products())
+        })
+        resp.status = falcon.HTTP_200
 
 
 class RESTfulPurchaseReturn(object):
@@ -61,13 +74,7 @@ class RESTfulPurchaseReturn(object):
                 'payload' : str(invoice)
             })
 
-        except ShoppingError as err:
-            resp.body = str({
-                'success' : False,
-                'payload' : err.message
-            })
-
-        except PurchaseBasketError as err:
+        except BaseError as err:
             resp.body = str({
                 'success' : False,
                 'payload' : err.message

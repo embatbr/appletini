@@ -8,33 +8,22 @@ Microservice to execute the business logic (group items, sum prices and calculat
 
 - Create a Python virtual environment typing `mkvirtualenv --python=/path/to/python3 aptn-business` (`virtualenvwrapper` is necessary) on terminal
 - Start it: `workon aptn-business`
-- Install Flask: `pip install falcon`
+- Install Falcon: `pip install falcon`
 - Install Money: `pip install money`
 - Install Gunicorn: `pip install gunicorn`
+
+### Running
+
+- In the root directory(where this file is), run `./deploy.sh`
 
 ### Modules
 
 The file *main.py* is used only to start the application. The real code is in the module files:
 
-- web_api
-    - Handles HTTP requests (validation included)
-    - Uses REST principles
-- domains
-    - Describes the application models
-        - Items
-        - Purchases
-        - Purchases basket
-        - Pricing rules
-- logic
-    - Groups items
-    - Sums prices
-    - Calculates discounts (promotions from pricing rules)
-- web_clients
-    - Sends HTTP requests to other services
-        - Data to the storage service (data access)
-        - MessageQueues (?)
-        - Authentication (?)
+- `web_api`: Define a RESTful API, the gateway to the service
+- `logic`: where the entire process (buying, payment and etc.) happens
+- `domains`: contains the models implementations
+- `configs`: export some configurations that may be used in many parts
+- `web_clients`: communicates with other services (for now, not implemented)
 
-### Testing
-
-To execute all tests, type, when in the root folder, (the one where this file is located) the command `python -m unittest discover`.
+The module `app` is used just to initiate and bind all other modules.
