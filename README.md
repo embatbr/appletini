@@ -18,4 +18,4 @@ Each service may be deployed independently of the others, typing `./deploy.sh` w
 
 **Warning:** *These weren't tested in a cloud environment, only in my personal machine. Be aware!*
 
-**Warning:** *Due to my renunciation to continue with TDD, some tests in service business are not valid anymore.*
+**Warning:** *Due to my renunciation to continue with TDD, some tests in service business are not valid anymore. They'll be fixed.*

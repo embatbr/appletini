@@ -15,7 +15,7 @@ In this directory (where this file is), run `./deploy.sh`.
 ### Modules
 
 - `console`: allows the user to navigate throught APPLETINI
-- `web_clients`: translates commands to HTTP requests and sends them to service **business**
+- `clients`: translates commands to HTTP requests and sends them to service **business**
 - `configs`: export some configurations that may be used in many parts
 
 The module `app` is just used to start the application and bind all the other modules.

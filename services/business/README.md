@@ -20,7 +20,7 @@ In this directory (where this file is), type `./deploy.sh`.
 - `web_api`: defines a RESTful API, the gateway to the service
 - `logic`: where the entire process (buying, payment and etc.) happens
 - `domains`: contains the models implementations
+- `clients`: communicates with other services (for now, not implemented)
 - `configs`: export some configurations that may be used in many parts
-- `web_clients`: communicates with other services (for now, not implemented)
 
 The module `app` is just used to start the application and bind all the other modules.

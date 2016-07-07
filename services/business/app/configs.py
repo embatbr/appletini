@@ -70,10 +70,10 @@ def reward_cheapipd(purchase_basket):
 
 # implementation may change according to the reviewer's answer
 def condition_mbpvga(purchase_basket):
-    if (not purchase_basket.has_purchase('mbp')) or (not purchase_basket.has_purchase('vga')):
-        return False
+    if purchase_basket.has_purchase('mbp') and purchase_basket.has_purchase('vga'):
+        return True
 
-    return True
+    return False
 
 # implementation may change according to the reviewer's answer
 def reward_mbpvga(purchase_basket):
