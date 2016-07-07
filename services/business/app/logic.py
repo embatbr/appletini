@@ -7,12 +7,9 @@ from configs import BaseError
 
 
 class Shopping(object):
-    """
-        SHOPPING - acquiring or removing products
-        PAYMENT  - finished the shopping, paid or waiting for payment (nevermind)
-    """
-    def __init__(self, products, purchase_basket):
+    def __init__(self, products, promotions, purchase_basket):
         self.products = products # products available
+        self.promotions = promotions
 
         self.purchase_basket = purchase_basket
 
@@ -39,6 +36,18 @@ class Shopping(object):
 
         except BaseError as err:
             raise err
+
+    def export_promotions(self):
+        ret = dict()
+
+        for code in self.promotions:
+            promotion = self.promotions[code]
+
+            ret[code] = {
+                'description' : promotion.describe()
+            }
+
+        return ret
 
     def purchase_product(self, sku):
         if sku not in self.products:

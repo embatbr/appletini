@@ -71,6 +71,21 @@ class Writer(object):
 
         self.write(screen)
 
+    def write_promotions(self, promotions):
+        screen = '\n\tPROMOTIONS\nCODE\t\tDESCRIPTION\n'
+
+        for code in promotions:
+            promotion = promotions[code]
+
+            description = promotion['description']
+
+            screen = '%s\n%s\t%s' % (screen, code, description)
+
+        new_line = '\n' if promotions else ''
+        screen = '%s%s' % (screen, new_line)
+
+        self.write(screen)
+
 
 class Terminal(object):
 
@@ -90,6 +105,7 @@ class Terminal(object):
             'remove',
             'clear',
             'checkout',
+            'promotions',
             'exit'
         ])
 
@@ -180,6 +196,16 @@ class Terminal(object):
         if ret['success']:
             payload = ast.literal_eval(payload)
             self.writer.write_basket(payload)
+        else:
+            self.writer.write_error(payload)
+
+    def cmd_promotions(self, args):
+        ret = self.business_client.get_promotions()
+        payload = ret['payload']
+
+        if ret['success']:
+            payload = ast.literal_eval(payload)
+            self.writer.write_promotions(payload)
         else:
             self.writer.write_error(payload)
 

@@ -35,6 +35,9 @@ class BusinessClient(object):
     def checkout(self):
         return self.shopping_gets('checkout')
 
+    def get_promotions(self):
+        return self.shopping_gets('promotions')
+
     def shopping_gets(self, action):
         url = '%s/shopping/%s' % (self.baseurl, action)
 

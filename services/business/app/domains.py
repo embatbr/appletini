@@ -23,6 +23,19 @@ class Product(object):
         return '%s %s $%s' % (self.sku, self.name, self.price.amount)
 
 
+class Promotion(object):
+
+    def __init__(self, code, category, condition, reward, description):
+        self.code = code
+        self.category = category
+        self.condition = condition
+        self.reward = reward
+        self.description = description
+
+    def describe(self):
+        return self.description
+
+
 class Purchase(object):
 
     def __init__(self, product, units):

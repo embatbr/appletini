@@ -30,7 +30,8 @@ class RESTfulShopping(object):
         self.shopping = shopping
 
     def on_get(self, req, resp, action):
-        if action not in ['products', 'basket', 'clear-basket', 'checkout']:
+        actions = ['products', 'basket', 'clear-basket', 'checkout', 'promotions']
+        if action not in actions:
             resp.status = falcon.HTTP_400
             return
 
