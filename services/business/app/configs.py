@@ -25,3 +25,22 @@ products = {
         }
     }
 }
+
+
+promotions = {
+    'promo-3-by-2-atv-' : {
+        'type' : 'discount',
+        'condition' : 'units > 3',
+        'reward' : 'price = -(price * units//3)'
+    },
+    'promo-ipd-50-usd-discount' : {
+        'type' : 'discount',
+        'condition' : 'units > 4',
+        'reward' : 'price = price - (50.00 * units)'
+    },
+    'promo-free-vga-mbp' : {
+        'type' : 'gift',
+        'condition' : 'mbp in purchases',
+        'reward' : 'vga.units = mbp.units'
+    }
+}
