@@ -10,7 +10,7 @@ class Reader(object):
     def read(self):
         cmdline = input('>>> ')
 
-        return cmdline.split(' ')
+        return cmdline.strip().split(' ')
 
 
 class Writer(object):
@@ -26,8 +26,8 @@ class Writer(object):
         screen = '%s\nhelp\t\tshows this list' % screen
         screen = '%s\nproducts\tshows list of products' % screen
         screen = '%s\nbasket\t\tshows current basket' % screen
-        screen = '%s\nbuy <SKU>\tadds product to basket given SKU' % screen
-        screen = '%s\nremove <SKU> \tremoves product from basket' % screen
+        screen = '%s\nadd <SKU>\tadds product to basket given SKU' % screen
+        screen = '%s\nremove <SKU> \tremoves product from basket given SKU' % screen
         screen = '%s\nclear\t\tremoves all products (clears) from basket' % screen
         screen = '%s\ncheckout\tfinishes shopping and shows basket' % screen
         screen = '%s\npromotions\tshows current promotions' % screen
@@ -92,7 +92,7 @@ class Writer(object):
 
             description = promotion['description']
 
-            screen = '%s\n%s\t%s' % (screen, code, description)
+            screen = '%s\n%s\t\t%s' % (screen, code, description)
 
         new_line = '\n' if promotions else ''
         screen = '%s%s' % (screen, new_line)
@@ -114,7 +114,7 @@ class Terminal(object):
             'help',
             'products',
             'basket',
-            'buy',
+            'add',
             'remove',
             'clear',
             'checkout',
@@ -165,13 +165,13 @@ class Terminal(object):
         except Exception as err:
             self.writer.write_error(err)
 
-    def cmd_buy(self, args):
-        self.__cmd_buy_or_remove('buy', args)
+    def cmd_add(self, args):
+        self.__cmd_add_or_remove('add', args)
 
     def cmd_remove(self, args):
-        self.__cmd_buy_or_remove('remove', args)
+        self.__cmd_add_or_remove('remove', args)
 
-    def __cmd_buy_or_remove(self, action, args):
+    def __cmd_add_or_remove(self, action, args):
         if not args:
             self.writer.write('You must provide the SKU.')
             self.writer.write_help()

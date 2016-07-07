@@ -19,3 +19,17 @@ Each service may be deployed independently of the others, typing `./deploy.sh` w
 **Warning:** *These weren't tested in a cloud environment, only in my personal machine. Be aware!*
 
 **Warning:** *Due to my renunciation to continue with TDD, some tests in service business are not valid anymore. They'll be fixed.*
+
+# TODO
+
+- Fix unit tests
+
+- Develop module `web_clients`
+    - Sends data to the service `storage`
+    - Service `storage`
+        - Receives HTTP request from service `business` (and maybe `presentation` too)
+        - Reads/writes from/to database
+
+- Allow multi-tenancy
+
+- Develop service `auth`

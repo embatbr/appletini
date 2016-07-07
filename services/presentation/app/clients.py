@@ -50,13 +50,13 @@ class BusinessClient(object):
         except urllib.error.HTTPError as err:
             return err
 
-    def buy(self, sku):
-        return self.buy_or_remove('purchase', sku)
+    def add(self, sku):
+        return self.add_or_remove('purchase', sku)
 
     def remove(self, sku):
-        return self.buy_or_remove('return', sku)
+        return self.add_or_remove('return', sku)
 
-    def buy_or_remove(self, action, sku):
+    def add_or_remove(self, action, sku):
         url = '%s/%s' % (self.baseurl, action)
         body = {
             'action' : action,
