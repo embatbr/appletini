@@ -30,18 +30,22 @@ products = {
 
 # These functions for conditions and rewards could be saved in a database
 
-def condition_atv3by2(purchase_basket):
-    if not purchase_basket.has_purchase('atv'):
+def condition_atv3by2(shopping):
+    basket = shopping.purchase_basket
+
+    if not basket.has_purchase('atv'):
         return False
 
-    if purchase_basket.get_purchase_units('atv') < 3:
+    if basket.get_purchase_units('atv') < 3:
         return False
 
     return True
 
-def reward_atv3by2(purchase_basket):
-    units = purchase_basket.get_purchase_units('atv')
-    price = purchase_basket.get_purchase_product_price('atv')
+def reward_atv3by2(shopping):
+    basket = shopping.purchase_basket
+
+    units = basket.get_purchase_units('atv')
+    price = basket.get_purchase_product_price('atv')
 
     discount_units = units // 3
     discount = price * discount_units
@@ -50,17 +54,21 @@ def reward_atv3by2(purchase_basket):
     return discount
 
 
-def condition_cheapipd(purchase_basket):
-    if not purchase_basket.has_purchase('ipd'):
+def condition_cheapipd(shopping):
+    basket = shopping.purchase_basket
+
+    if not basket.has_purchase('ipd'):
         return False
 
-    if purchase_basket.get_purchase_units('ipd') < 5:
+    if basket.get_purchase_units('ipd') < 5:
         return False
 
     return True
 
-def reward_cheapipd(purchase_basket):
-    units = purchase_basket.get_purchase_units('ipd')
+def reward_cheapipd(shopping):
+    basket = shopping.purchase_basket
+
+    units = basket.get_purchase_units('ipd')
 
     discount = Decimal('50.00') * units
     discount = -discount
@@ -69,21 +77,31 @@ def reward_cheapipd(purchase_basket):
 
 
 # implementation may change according to the reviewer's answer
-def condition_mbpvga(purchase_basket):
-    if purchase_basket.has_purchase('mbp') and purchase_basket.has_purchase('vga'):
+def condition_mbpvga(shopping):
+    basket = shopping.purchase_basket
+
+    if basket.has_purchase('mbp'):
         return True
 
     return False
 
 # implementation may change according to the reviewer's answer
-def reward_mbpvga(purchase_basket):
-    units_mbp = purchase_basket.get_purchase_units('mbp')
-    units_vga = purchase_basket.get_purchase_units('vga')
-    price_vga = purchase_basket.get_purchase_product_price('vga')
+def reward_mbpvga(shopping):
+    basket = shopping.purchase_basket
 
-    units = min(units_mbp, units_vga)
+    mbp_units = basket.get_purchase_units('mbp')
+    vga_units = 0
 
-    discount = price_vga * units
+    if basket.has_purchase('vga'):
+        vga_units = basket.get_purchase_units('vga')
+
+    while mbp_units > vga_units:
+        shopping.purchase_product('vga')
+        vga_units = basket.get_purchase_units('vga')
+
+    price_vga = basket.get_purchase_product_price('vga')
+
+    discount = price_vga * mbp_units
     discount = -discount
 
     return discount
@@ -95,7 +113,7 @@ promotions = {
         'reward' : reward_atv3by2,
         'description' : 'For each 3 Apple TVs you buy, 1 is for free!'
     },
-    'cheapipd' : {
+    'ipd4+' : {
         'condition' : condition_cheapipd,
         'reward' : reward_cheapipd,
         'description' : 'Buy more than 4 Super Ipads and pay only $499.99 on each!'

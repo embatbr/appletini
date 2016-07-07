@@ -87,7 +87,8 @@ class RESTfulPurchaseReturn(object):
         sku = req_body['sku']
 
         try:
-            invoice = getattr(self.shopping, '%s_product' % action)(sku)
+            getattr(self.shopping, '%s_product' % action)(sku)
+            invoice = self.shopping.export_basket()
 
             resp.body = str({
                 'success' : True,

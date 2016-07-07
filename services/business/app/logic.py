@@ -3,6 +3,8 @@ discounts).
 """
 
 
+from decimal import Decimal
+
 from configs import BaseError
 
 
@@ -44,7 +46,7 @@ class Shopping(object):
             promotion = self.promotions[code]
 
             ret[code] = {
-                'description' : promotion.describe()
+                'description' : promotion.description
             }
 
         return ret
@@ -55,18 +57,15 @@ class Shopping(object):
 
         self.purchase_basket.add_product(self.products[sku])
 
-        return self.get_invoice()
-
     def return_product(self, sku):
         if sku not in self.products:
             raise BaseError('Cannot return an invalid product.')
 
         try:
             self.purchase_basket.remove_product(sku)
+
         except BaseError as err:
             raise err
-
-        return self.get_invoice()
 
     def checkout(self):
         if self.purchase_basket.is_empty():
@@ -78,25 +77,23 @@ class Shopping(object):
         return invoice
 
     def get_invoice(self):
-        invoice = self.purchase_basket.get_invoice()
-
-        total_price = invoice['total_price']
-
+        promotions = dict()
+        total_discount = Decimal('0.00')
         # applying promotions
         for code in self.promotions:
             promotion = self.promotions[code]
 
-            if promotion.condition(self.purchase_basket):
-                discount = promotion.reward(self.purchase_basket)
-                total_price = total_price + discount
+            if promotion.condition(self):
+                discount = promotion.reward(self)
+                total_discount = total_discount + discount
 
-                if 'promotions' not in invoice:
-                    invoice['promotions'] = dict()
-
-                invoice['promotions'][code] = {
+                promotions[code] = {
                     'price' : str(discount)
                 }
 
+        invoice = self.purchase_basket.get_invoice()
+        total_price = self.purchase_basket.calculate_price() + total_discount
         invoice['total_price'] = str(total_price)
+        invoice['promotions'] = promotions
 
         return invoice
