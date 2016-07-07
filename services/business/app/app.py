@@ -29,12 +29,11 @@ def __generate_promotions():
     for code in promotions_configs:
         promotion_configs = promotions_configs[code]
 
-        category = promotion_configs['category']
         condition = promotion_configs['condition']
         reward = promotion_configs['reward']
         description = promotion_configs['description']
 
-        promotions[code] = Promotion(code, category, condition, reward, description)
+        promotions[code] = Promotion(code, condition, reward, description)
 
     return promotions
 

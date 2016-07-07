@@ -25,9 +25,8 @@ class Product(object):
 
 class Promotion(object):
 
-    def __init__(self, code, category, condition, reward, description):
+    def __init__(self, code, condition, reward, description):
         self.code = code
-        self.category = category
         self.condition = condition
         self.reward = reward
         self.description = description

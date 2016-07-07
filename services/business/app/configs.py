@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+
 class BaseError(Exception):
 
     def __init__(self, message):
@@ -37,8 +40,6 @@ def condition_atv3by2(purchase_basket):
     return True
 
 def reward_atv3by2(purchase_basket):
-    total_price = purchase_basket.calculate_price()
-
     units = purchase_basket.get_purchase_units('atv')
     price = purchase_basket.get_purchase_product_price('atv')
 
@@ -49,27 +50,59 @@ def reward_atv3by2(purchase_basket):
     return discount
 
 
+def condition_cheapipd(purchase_basket):
+    if not purchase_basket.has_purchase('ipd'):
+        return False
+
+    if purchase_basket.get_purchase_units('ipd') < 5:
+        return False
+
+    return True
+
+def reward_cheapipd(purchase_basket):
+    units = purchase_basket.get_purchase_units('ipd')
+
+    discount = Decimal('50.00') * units
+    discount = -discount
+
+    return discount
+
+
+# implementation may change according to the reviewer's answer
+def condition_mbpvga(purchase_basket):
+    if (not purchase_basket.has_purchase('mbp')) or (not purchase_basket.has_purchase('vga')):
+        return False
+
+    return True
+
+# implementation may change according to the reviewer's answer
+def reward_mbpvga(purchase_basket):
+    units_mbp = purchase_basket.get_purchase_units('mbp')
+    units_vga = purchase_basket.get_purchase_units('vga')
+    price_vga = purchase_basket.get_purchase_product_price('vga')
+
+    units = min(units_mbp, units_vga)
+
+    discount = price_vga * units
+    discount = -discount
+
+    return discount
+
+
 promotions = {
     'atv3by2' : {
-        'category' : 'discount',
         'condition' : condition_atv3by2,
         'reward' : reward_atv3by2,
         'description' : 'For each 3 Apple TVs you buy, 1 is for free!'
+    },
+    'cheapipd' : {
+        'condition' : condition_cheapipd,
+        'reward' : reward_cheapipd,
+        'description' : 'Buy more than 4 Super Ipads and pay only $499.99 on each!'
+    },
+    'mbpvga' : {
+        'condition' : condition_mbpvga,
+        'reward' : reward_mbpvga,
+        'description' : 'Each MacBook Pro comes with a free VGA adapter!'
     }
-    # },
-    # 'cheapipd' : {
-    #     'category' : 'discount',
-    #     'condition' : 'ipd.units > 4',
-    #     'reward' : 'total_price = total_price - (50.00 * ipd.units)',
-    #     'description' : 'Buy more than 4 Super Ipads and pay only $499.99 on each!'
-    # },
-    # 'vgagift' : {
-    #     'category' : 'gift',
-    #     'condition' : 'mbp.units > 0',
-    #     'reward' : [
-    #         'vga.units = vga.units + mbp.units',
-    #         'total_price = total_price - (mbp.units * vga.price)'
-    #     ],
-    #     'description' : 'Each MacBook Pro comes with a free VGA adapter!'
-    # }
 }
