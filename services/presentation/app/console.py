@@ -38,7 +38,7 @@ class Writer(object):
 
     # TODO get from service **business** (and later, from **storage**)
     def write_products(self, products):
-        screen = '\n\tPRODUCTS\nSKU\tNAME\t\tPRICE\n'
+        screen = '\n\tPRODUCTS\nSKU\tNAME\t\tPRICE (USD)\n'
 
         for sku in products:
             product = products[sku]
@@ -46,7 +46,7 @@ class Writer(object):
             name = product['name']
             price = product['price']
 
-            screen = '%s\n%s\t%s\t$%s' % (screen, sku, name, price)
+            screen = '%s\n%s\t%s\t%10s' % (screen, sku, name, price)
 
         new_line = '\n' if products else ''
         screen = '%s%s' % (screen, new_line)
@@ -54,7 +54,7 @@ class Writer(object):
         self.write(screen)
 
     def write_basket(self, basket):
-        screen = '\n\tBASKET\nSKU\tNAME\t\tUNITS\tPRICE\n'
+        screen = '\n\tBASKET\nSKU\t\tNAME\t\tUNITS\tPRICE (USD)\n'
 
         items = basket['items']
         for sku in items:
@@ -64,10 +64,23 @@ class Writer(object):
             units = item['units']
             price = item['price']
 
-            screen = '%s\n%s\t%s\t%s\t$%s' % (screen, sku, name, units, price)
+            screen = '%s\n%s\t\t%s\t%05s\t%10s' % (screen, sku, name, units, price)
 
         new_line = '\n' if items else ''
-        screen = '%s%s\nTOTAL:\t\t\t\t$%s\n' % (screen, new_line, basket['total_price'])
+        screen = '%s%s' % (screen, new_line)
+
+        if 'promotions' in basket:
+            promotions = basket['promotions']
+            for code in promotions:
+                promotion = promotions[code]
+
+                price = promotion['price']
+
+                screen = '%s\n%s\t\t\t\t\t%10s' % (screen, code, price)
+
+            screen = '%s\n' % screen
+
+        screen = '%s\nTOTAL:\t\t\t\t\t%10s\n' % (screen, basket['total_price'])
 
         self.write(screen)
 

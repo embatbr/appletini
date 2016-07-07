@@ -21,13 +21,13 @@ class Shopping(object):
 
             ret[sku] = {
                 'name' : product.name,
-                'price' : str(product.price.amount)
+                'price' : str(product.price)
             }
 
         return ret
 
     def export_basket(self):
-        return self.purchase_basket.get_invoice()
+        return self.get_invoice()
 
     def clear_basket(self):
         try:
@@ -55,7 +55,7 @@ class Shopping(object):
 
         self.purchase_basket.add_product(self.products[sku])
 
-        return self.purchase_basket.get_invoice()
+        return self.get_invoice()
 
     def return_product(self, sku):
         if sku not in self.products:
@@ -66,13 +66,37 @@ class Shopping(object):
         except BaseError as err:
             raise err
 
-        return self.purchase_basket.get_invoice()
+        return self.get_invoice()
 
     def checkout(self):
         if self.purchase_basket.is_empty():
             raise BaseError('Cannot checkout with an empty basket.')
 
-        invoice = self.purchase_basket.get_invoice()
+        invoice = self.get_invoice()
         self.clear_basket()
+
+        return invoice
+
+    def get_invoice(self):
+        invoice = self.purchase_basket.get_invoice()
+
+        total_price = invoice['total_price']
+
+        # applying promotions
+        for code in self.promotions:
+            promotion = self.promotions[code]
+
+            if promotion.condition(self.purchase_basket):
+                discount = promotion.reward(self.purchase_basket)
+                total_price = total_price + discount
+
+                if 'promotions' not in invoice:
+                    invoice['promotions'] = dict()
+
+                invoice['promotions'][code] = {
+                    'price' : str(discount)
+                }
+
+        invoice['total_price'] = str(total_price)
 
         return invoice

@@ -7,7 +7,7 @@ guaranteed by the callers.
 
 import re
 
-from money import Money
+from decimal import Decimal
 
 from configs import BaseError
 
@@ -17,10 +17,10 @@ class Product(object):
     def __init__(self, sku, name, price):
         self.sku = sku.strip()
         self.name = name.strip()
-        self.price = Money(price, 'USD')
+        self.price = Decimal(price)
 
     def describe(self):
-        return '%s %s $%s' % (self.sku, self.name, self.price.amount)
+        return '%s %s $%s' % (self.sku, self.name, str(self.price))
 
 
 class Promotion(object):
@@ -49,8 +49,7 @@ class Purchase(object):
         self.units = self.units - 1
 
     def calculate_price(self):
-        total_price = self.units * self.product.price
-        return total_price.amount
+        return (self.units * self.product.price)
 
     def get_invoice(self):
         total_price = self.calculate_price()
@@ -91,17 +90,26 @@ class PurchaseBasket(object):
     def is_empty(self):
         return not self.purchases
 
+    def has_purchase(self, sku):
+        return (sku in self.purchases)
+
+    def get_purchase_units(self, sku):
+        return self.purchases[sku].units
+
+    def get_purchase_product_price(self, sku):
+        return self.purchases[sku].product.price
+
     def calculate_price(self):
         return sum([purchase.calculate_price() for purchase in self.purchases.values()])
 
     def get_invoice(self):
-        ret = {
+        invoice = {
             'items' : dict(),
-            'total_price' : str(self.calculate_price())
+            'total_price' : self.calculate_price()
         }
 
         for sku in self.purchases:
             purchase = self.purchases[sku]
-            ret['items'][sku] = purchase.get_invoice()
+            invoice['items'][sku] = purchase.get_invoice()
 
-        return ret
+        return invoice

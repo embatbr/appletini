@@ -9,7 +9,6 @@ Microservice to execute the business logic (group items, sum prices and calculat
 - Create a Python virtual environment typing `mkvirtualenv --python=/path/to/python3 aptn-business` (`virtualenv`and `virtualenvwrapper` are necessary) on terminal
 - Start it: `workon aptn-business`
 - Install Falcon: `pip install falcon`
-- Install Money: `pip install money`
 - Install Gunicorn: `pip install gunicorn`
 
 ### Running
