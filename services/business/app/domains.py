@@ -25,25 +25,27 @@ class Product(object):
 
 class Purchase(object):
 
-    def __init__(self, product, amount):
+    def __init__(self, product, units):
         self.product = product
-        self.amount = amount
+        self.units = units
 
-    def increase_amount(self):
-        self.amount = self.amount + 1
+    def increase_units(self):
+        self.units = self.units + 1
 
-    def decrease_amount(self):
-        self.amount = self.amount - 1
+    def decrease_units(self):
+        self.units = self.units - 1
 
     def calculate_price(self):
-        total_price = self.amount * self.product.price
+        total_price = self.units * self.product.price
         return total_price.amount
 
     def get_invoice(self):
+        total_price = self.calculate_price()
+
         return {
             'name' : self.product.name,
-            'amount' : self.amount,
-            'price' : str(self.calculate_price())
+            'units' : self.units,
+            'price' : str(total_price)
         }
 
 
@@ -54,7 +56,7 @@ class PurchaseBasket(object):
 
     def add_product(self, product):
         if product.sku in self.purchases:
-            self.purchases[product.sku].increase_amount()
+            self.purchases[product.sku].increase_units()
         else:
             self.purchases[product.sku] = Purchase(product, 1)
 
@@ -62,8 +64,8 @@ class PurchaseBasket(object):
         if sku not in self.purchases:
             raise BaseError('Cannot remove a non-purchased product.')
 
-        self.purchases[sku].decrease_amount()
-        if self.purchases[sku].amount == 0:
+        self.purchases[sku].decrease_units()
+        if self.purchases[sku].units == 0:
             del self.purchases[sku]
 
     def clear(self):

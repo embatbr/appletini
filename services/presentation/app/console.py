@@ -54,17 +54,17 @@ class Writer(object):
         self.write(screen)
 
     def write_basket(self, basket):
-        screen = '\n\tBASKET\nSKU\tNAME\t\tAMOUNT\tPRICE\n'
+        screen = '\n\tBASKET\nSKU\tNAME\t\tUNITS\tPRICE\n'
 
         items = basket['items']
         for sku in items:
             item = items[sku]
 
             name = item['name']
-            amount = item['amount']
+            units = item['units']
             price = item['price']
 
-            screen = '%s\n%s\t%s\t%s\t$%s' % (screen, sku, name, amount, price)
+            screen = '%s\n%s\t%s\t%s\t$%s' % (screen, sku, name, units, price)
 
         new_line = '\n' if items else ''
         screen = '%s%s\nTOTAL:\t\t\t\t$%s\n' % (screen, new_line, basket['total_price'])
