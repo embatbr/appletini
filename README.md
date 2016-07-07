@@ -4,48 +4,18 @@ The tiny mock Apple Store.
 
 Appletini is a mock Apple Store. It may be composed of one or more RESTful services (e.g., front-end and back-end microservices).
 
-## Must have
-
-- Shopping cart
-    - Stores products by it's SKU
-        - Each SKU has an amount of items
-        - Has the default price by unit, the summed price and the current total price (to indicate promotions, as in 3 by the price of 2)
-- Items
-    - Check if must create a class with `SKU`, `name` and `price`
-- Rules
-    - An object to define the promotion rules
-    - Must be flexible, so "an application inside the application"
-        - Maybe define a simple coding
-    - Check conflicting rules and think how to solve it
-        - Tree of possibilities?
-        - Remember compiler theory
-- Checkout core
-    - Checks each item (composed of 1 or more units) for a promotion
-    - In case of promotions (such as free items ones), insert those after all checkings
-        - Avoids a reward from a promotion to trigger another promotion wrongly (e.g, "I have 2 `atv` e 2 `mbp` and there's a promotion of 2 `mpb` gives you a new `atv`, what may triggers the '3 `atv` by the price of 2' promotion")
-- Database
-    - Start with SQLite
-    - After, use MySQL or PostgreSQL
-
-## How to (step by step - oh baby)
-
-All steps must have tests
-
-1. Create a retail system
-    - Database with products descriptions and shopping transactions
-    - Receives a buy order (when the shopping cart) is finishedside.
-    - Calculates the price and return
-2. Insert the promotions
-    - Calculates the rewards for each promotion
-    - Delivers the rewards after all calculations
-    - Updates the value charged
-3. Use microservices to create a front-end to be used
-    - Detail this topic when necessary
-
 ## Services
 
-There are three services:
+There are three services (follow the links to see the READMEs):
 
-- presentation
+- [presentation](./services/presentation/README.md)
 - [business](./services/business/README.md)
-- storage
+- storage (not yet)
+
+## Running
+
+Each service may be deployed independently of the others, typing `./deploy.sh` while in the service's root directory (e.g., if you are in *./services/business* you will start the microservice business).
+
+**Warning:** *These weren't tested in a cloud environment, only in my personal machine. Be aware!*
+
+**Warning:** *Due to my renunciation to continue with TDD, some tests in service business are not valid anymore.*
