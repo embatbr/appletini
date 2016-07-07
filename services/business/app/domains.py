@@ -9,7 +9,10 @@ import re
 
 from decimal import Decimal
 
-from configs import BaseError
+try:
+    from configs import BaseError
+except ImportError:
+    from app.configs import BaseError
 
 
 class Product(object):
@@ -18,21 +21,6 @@ class Product(object):
         self.sku = sku.strip()
         self.name = name.strip()
         self.price = Decimal(price)
-
-    def describe(self):
-        return '%s %s $%s' % (self.sku, self.name, str(self.price))
-
-
-class Promotion(object):
-
-    def __init__(self, code, condition, reward, description):
-        self.code = code
-        self.condition = condition
-        self.reward = reward
-        self.description = description
-
-    def describe(self):
-        return self.description
 
 
 class Purchase(object):
@@ -60,19 +48,28 @@ class Purchase(object):
         }
 
 
+class Promotion(object):
+
+    def __init__(self, code, condition, reward, description):
+        self.code = code
+        self.condition = condition
+        self.reward = reward
+        self.description = description
+
+
 class PurchaseBasket(object):
 
     def __init__(self):
         self.purchases = dict()
 
     def add_product(self, product):
-        if product.sku in self.purchases:
+        if self.has_purchase(product.sku):
             self.purchases[product.sku].increase_units()
         else:
             self.purchases[product.sku] = Purchase(product, 1)
 
     def remove_product(self, sku):
-        if sku not in self.purchases:
+        if not self.has_purchase(sku):
             raise BaseError('Cannot remove a non-purchased product.')
 
         self.purchases[sku].decrease_units()

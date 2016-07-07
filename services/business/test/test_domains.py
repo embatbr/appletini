@@ -2,88 +2,57 @@
 """
 
 
+import sys
 import unittest
 from decimal import Decimal
 
-from app.domains import Product, ProductError, Purchase, PurchaseError, PurchaseBasket
-from app.domains import PurchaseBasketError, Invoice
-
-
-class ProductTestCase(unittest.TestCase):
-
-    def setUp(self):
-        self.sku = 'ipd'
-        self.name = 'Super iPad'
-        self.price = '549.99'
-
-    def test_should_not_create_a_product_with_price_in_wrong_format(self):
-        with self.assertRaises(ProductError) as catched:
-            Product(self.sku, self.name, '1.9')
-
-        error = catched.exception
-        self.assertEqual(error.message, 'Amount 1.9 is not in the correct format.')
-
-    def test_should_create_a_product(self):
-        product = Product(self.sku, self.name, self.price)
-
-        self.assertEqual(product.sku, self.sku)
-        self.assertEqual(product.name, self.name)
-        self.assertEqual(product.price.amount, Decimal(self.price))
-
-    def test_should_describe_a_product(self):
-        product = Product(self.sku, self.name, self.price)
-
-        self.assertEqual(product.describe(), '%s %s $%s' % (self.sku, self.name, self.price))
+from app.domains import Product, Purchase, PurchaseBasket
+from app.configs import BaseError
 
 
 class PurchaseTestCase(unittest.TestCase):
 
     def setUp(self):
         self.product = Product('ipd', 'Super iPad', '549.99')
+        self.purchase = Purchase(self.product, 1)
 
-    def test_should_not_purchase_less_than_one_product_item(self):
-        with self.assertRaises(PurchaseError) as catched:
-            purchase = Purchase(self.product, 0)
+    def test_should_increase_units_by_one(self):
+        self.assertEqual(self.purchase.units, 1)
 
-        error = catched.exception
-        self.assertEqual(error.message, 'Must purchase at least 1 item.')
+        self.purchase.increase_units()
 
-    def test_should_purchase_a_product(self):
-        purchase = Purchase(self.product, 3)
+        self.assertEqual(self.purchase.units, 2)
 
-        self.assertEqual(purchase.product, self.product)
-        self.assertEqual(purchase.amount, 3)
+    def test_should_decrease_units_by_one(self):
+        self.assertEqual(self.purchase.units, 1)
 
-    def test_should_increase_product_amount_by_one(self):
-        purchase = Purchase(self.product, 3)
+        self.purchase.decrease_units()
 
-        self.assertEqual(purchase.amount, 3)
+        self.assertEqual(self.purchase.units, 0)
 
-        purchase.increase_amount()
+    def test_should_multiply_product_price_by_purchase_units(self):
+        expected_price = self.product.price * self.purchase.units
 
-        self.assertEqual(purchase.amount, 4)
+        self.assertEqual(self.purchase.calculate_price(), expected_price)
 
-    def test_should_not_decrease_product_amount_to_less_than_one(self):
-        with self.assertRaises(PurchaseError) as catched:
-            purchase = Purchase(self.product, 1)
-            purchase.decrease_amount()
+        self.purchase.increase_units()
 
-        error = catched.exception
-        self.assertEqual(error.message, 'Product amount cannot be less than 1.')
+        self.assertEqual(self.purchase.units, 2)
 
-    def test_should_decrease_product_amount_by_one(self):
-        purchase = Purchase(self.product, 3)
+        expected_price = self.product.price * self.purchase.units
 
-        self.assertEqual(purchase.amount, 3)
+        self.assertEqual(self.purchase.calculate_price(), expected_price)
 
-        purchase.decrease_amount()
+    def test_should_return_a_dictionary_with_name_units_and_price(self):
+        invoice = self.purchase.get_invoice()
 
-        self.assertEqual(purchase.amount, 2)
-
-    def test_should_purchase_calculate_price(self):
-        purchase = Purchase(self.product, 3)
-
-        self.assertEqual(purchase.calculate_price(), Decimal('1649.97'))
+        self.assertIsInstance(invoice, dict)
+        self.assertIn('name', invoice)
+        self.assertEqual(invoice['name'], self.product.name)
+        self.assertIn('units', invoice)
+        self.assertEqual(invoice['units'], self.purchase.units)
+        self.assertIn('price', invoice)
+        self.assertEqual(invoice['price'], str(self.purchase.calculate_price()))
 
 
 class PurchaseBasketTestCase(unittest.TestCase):
@@ -92,33 +61,33 @@ class PurchaseBasketTestCase(unittest.TestCase):
         self.purchase_basket = PurchaseBasket()
         self.product = Product('ipd', 'Super iPad', '549.99')
 
-    def test_should_add_a_new_product_item(self):
+    def test_should_create_a_purchase_object_when_purchasing_a_non_existing_product(self):
         self.assertNotIn(self.product.sku, self.purchase_basket.purchases)
 
         self.purchase_basket.add_product(self.product)
 
         self.assertIn(self.product.sku, self.purchase_basket.purchases)
         self.assertIsNotNone(self.purchase_basket.purchases[self.product.sku])
-        self.assertEqual(self.purchase_basket.purchases[self.product.sku].amount, 1)
+        self.assertEqual(self.purchase_basket.purchases[self.product.sku].units, 1)
 
-    def test_should_increment_amount_by_one_of_existing_product_in_basket(self):
+    def test_should_increment_units_by_one_when_purchasing_an_existing_product(self):
         self.purchase_basket.purchases[self.product.sku] = Purchase(self.product, 1)
-        self.assertEqual(self.purchase_basket.purchases[self.product.sku].amount, 1)
+        self.assertEqual(self.purchase_basket.purchases[self.product.sku].units, 1)
 
         self.purchase_basket.add_product(self.product)
 
-        self.assertEqual(self.purchase_basket.purchases[self.product.sku].amount, 2)
+        self.assertEqual(self.purchase_basket.purchases[self.product.sku].units, 2)
 
-    def test_should_not_remove_an_item_for_non_existing_given_sku(self):
+    def test_should_not_remove_a_non_existing_product(self):
         self.assertNotIn(self.product.sku, self.purchase_basket.purchases)
 
-        with self.assertRaises(PurchaseBasketError) as catched:
+        with self.assertRaises(BaseError) as catched:
             self.purchase_basket.remove_product(self.product.sku)
 
         error = catched.exception
-        self.assertEqual(error.message, 'Cannot remove non-existing product item.')
+        self.assertEqual(error.message, 'Cannot remove a non-purchased product.')
 
-    def test_should_delete_product_when_removing_purchase_of_amount_one(self):
+    def test_should_delete_product_when_removing_purchase_with_one_unit(self):
         self.purchase_basket.add_product(self.product)
 
         self.assertIn(self.product.sku, self.purchase_basket.purchases)
@@ -127,21 +96,21 @@ class PurchaseBasketTestCase(unittest.TestCase):
 
         self.assertNotIn(self.product.sku, self.purchase_basket.purchases)
 
-    def test_should_decrease_product_amount_when_removing_purchase_of_amount_higher_than_one(self):
+    def test_should_decrease_product_units_when_removing_purchase_more_than_one_unit(self):
         self.purchase_basket.add_product(self.product)
 
         self.assertIn(self.product.sku, self.purchase_basket.purchases)
 
         self.purchase_basket.add_product(self.product)
 
-        self.assertEqual(self.purchase_basket.purchases[self.product.sku].amount, 2)
+        self.assertEqual(self.purchase_basket.purchases[self.product.sku].units, 2)
 
         self.purchase_basket.remove_product(self.product.sku)
 
-        self.assertEqual(self.purchase_basket.purchases[self.product.sku].amount, 1)
+        self.assertEqual(self.purchase_basket.purchases[self.product.sku].units, 1)
 
     def test_should_not_clear_empty_purchase_basket(self):
-        with self.assertRaises(PurchaseBasketError) as catched:
+        with self.assertRaises(BaseError) as catched:
             self.purchase_basket.clear()
 
         error = catched.exception
@@ -158,60 +127,3 @@ class PurchaseBasketTestCase(unittest.TestCase):
         self.purchase_basket.purchases.clear()
 
         self.assertFalse(self.purchase_basket.purchases)
-
-    def test_should_be_considered_empty_if_has_no_purchase(self):
-        self.assertTrue(self.purchase_basket.is_empty())
-
-        self.purchase_basket.add_product(self.product)
-
-        self.assertFalse(self.purchase_basket.is_empty())
-
-    def test_should_calculate_basket_total_value(self):
-        self.assertTrue(self.purchase_basket.is_empty())
-
-        self.purchase_basket.add_product(self.product)
-        self.purchase_basket.add_product(self.product)
-
-        self.assertEqual(self.purchase_basket.calculate_price(), Decimal('1099.98'))
-
-
-class InvoiceTestCase(unittest.TestCase):
-
-    def setUp(self):
-        self.purchase_basket = PurchaseBasket()
-
-        ipd = Product('ipd', 'Super iPad', '549.99')
-        mbp = Product('mbp', 'MacBook Pro', '1399.99')
-        atv = Product('atv', 'Apple TV', '109.50')
-        vga = Product('vga', 'VGA adapter', '30.00')
-
-        self.purchase_basket.add_product(atv)
-        self.purchase_basket.add_product(atv)
-        self.purchase_basket.add_product(atv)
-
-        self.purchase_basket.add_product(ipd)
-        self.purchase_basket.add_product(ipd)
-        self.purchase_basket.add_product(ipd)
-        self.purchase_basket.add_product(ipd)
-        self.purchase_basket.add_product(ipd)
-
-        self.purchase_basket.add_product(mbp)
-
-        self.purchase_basket.add_product(vga)
-
-    def test_should_process_invoice_correctly(self):
-        invoice = Invoice(self.purchase_basket)
-
-        for (sku, amount, price) in invoice.items:
-            self.assertIn(sku, self.purchase_basket.purchases)
-
-            purchase = self.purchase_basket.purchases[sku]
-
-            int_amount = int(amount)
-            self.assertEqual(int_amount, purchase.amount)
-
-            expected_price = (int_amount * purchase.product.price).amount
-            self.assertEqual(Decimal(price[1 : ]), expected_price)
-
-        basket_price = self.purchase_basket.calculate_price()
-        self.assertEqual(invoice.total_price, basket_price)
