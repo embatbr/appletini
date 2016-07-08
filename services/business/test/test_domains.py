@@ -2,7 +2,6 @@
 """
 
 
-import sys
 import unittest
 from decimal import Decimal
 

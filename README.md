@@ -18,11 +18,13 @@ Each service may be deployed independently of the others, typing `./deploy.sh` w
 
 **Warning:** *These weren't tested in a cloud environment, only in my personal machine. Be aware!*
 
-**Warning:** *Due to my renunciation to continue with TDD, some tests in service business are not valid anymore. They'll be fixed.*
+## Unit Testing
+
+Unit tests were written only for modules `domains` and `logic`, in service **business**, the core of the entire system.
+
+All tests can be execute typing `python -m unittest discover` in terminal while inside directory *./services/business*. Each test file is execute by `python -m unittest test.test_<module name>`.
 
 # TODO
-
-- Fix unit tests
 
 - Develop module `web_clients`
     - Sends data to the service `storage`

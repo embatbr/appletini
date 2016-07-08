@@ -54,7 +54,7 @@ def reward_atv3by2(shopping):
     return discount
 
 
-def condition_cheapipd(shopping):
+def condition_ipd50(shopping):
     basket = shopping.purchase_basket
 
     if not basket.has_purchase('ipd'):
@@ -65,7 +65,7 @@ def condition_cheapipd(shopping):
 
     return True
 
-def reward_cheapipd(shopping):
+def reward_ipd50(shopping):
     basket = shopping.purchase_basket
 
     units = basket.get_purchase_units('ipd')
@@ -113,9 +113,9 @@ promotions = {
         'reward' : reward_atv3by2,
         'description' : 'For each 3 Apple TVs you buy, 1 is for free!'
     },
-    'ipd4+' : {
-        'condition' : condition_cheapipd,
-        'reward' : reward_cheapipd,
+    'ipd50' : {
+        'condition' : condition_ipd50,
+        'reward' : reward_ipd50,
         'description' : 'Buy more than 4 Super Ipads and pay only $499.99 on each!'
     },
     'mbpvga' : {

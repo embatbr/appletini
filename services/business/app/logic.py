@@ -5,7 +5,10 @@ discounts).
 
 from decimal import Decimal
 
-from configs import BaseError
+try:
+    from configs import BaseError
+except ImportError:
+    from app.configs import BaseError
 
 
 class Shopping(object):
@@ -14,42 +17,6 @@ class Shopping(object):
         self.promotions = promotions
 
         self.purchase_basket = purchase_basket
-
-    def export_products(self):
-        ret = dict()
-
-        for sku in self.products:
-            product = self.products[sku]
-
-            ret[sku] = {
-                'name' : product.name,
-                'price' : str(product.price)
-            }
-
-        return ret
-
-    def export_basket(self):
-        return self.get_invoice()
-
-    def clear_basket(self):
-        try:
-            self.purchase_basket.clear()
-            return self.export_basket()
-
-        except BaseError as err:
-            raise err
-
-    def export_promotions(self):
-        ret = dict()
-
-        for code in self.promotions:
-            promotion = self.promotions[code]
-
-            ret[code] = {
-                'description' : promotion.description
-            }
-
-        return ret
 
     def purchase_product(self, sku):
         if sku not in self.products:
@@ -67,6 +34,14 @@ class Shopping(object):
         except BaseError as err:
             raise err
 
+    def clear_basket(self):
+        try:
+            self.purchase_basket.clear()
+            return self.export_basket()
+
+        except BaseError as err:
+            raise err
+
     def checkout(self):
         if self.purchase_basket.is_empty():
             raise BaseError('Cannot checkout with an empty basket.')
@@ -75,6 +50,34 @@ class Shopping(object):
         self.clear_basket()
 
         return invoice
+
+    def export_products(self):
+        ret = dict()
+
+        for sku in self.products:
+            product = self.products[sku]
+
+            ret[sku] = {
+                'name' : product.name,
+                'price' : str(product.price)
+            }
+
+        return ret
+
+    def export_basket(self):
+        return self.get_invoice()
+
+    def export_promotions(self):
+        ret = dict()
+
+        for code in self.promotions:
+            promotion = self.promotions[code]
+
+            ret[code] = {
+                'description' : promotion.description
+            }
+
+        return ret
 
     def get_invoice(self):
         promotions = dict()
