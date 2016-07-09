@@ -6,8 +6,8 @@ import unittest
 
 from app.domains import Product, Promotion, PurchaseBasket
 from app.logic import Shopping
-from app.configs import condition_atv3by2, condition_ipd50, condition_mbpvga
-from app.configs import reward_atv3by2, reward_ipd50, reward_mbpvga
+from app.configs import condition_atv3by2, condition_ipd4gt, condition_mbpvga
+from app.configs import reward_atv3by2, reward_ipd4gt, reward_mbpvga
 from app.configs import BaseError
 
 
@@ -23,7 +23,7 @@ class ShoppingTestCase(unittest.TestCase):
 
         promotions = {
             'atv3by2' : Promotion('atv3by2', condition_atv3by2, reward_atv3by2, 'For each 3 Apple TVs you buy, 1 is for free!'),
-            'ipd50' : Promotion('ipd50', condition_ipd50, reward_ipd50, 'Buy more than 4 Super Ipads and pay only $499.99 on each!'),
+            'ipd4gt' : Promotion('ipd4gt', condition_ipd4gt, reward_ipd4gt, 'Buy more than 4 Super Ipads and pay only $499.99 on each!'),
             'mbpvga' : Promotion('mbpvga', condition_mbpvga, reward_mbpvga, 'Each MacBook Pro comes with a free VGA adapter!')
         }
 
@@ -57,7 +57,7 @@ class ShoppingTestCase(unittest.TestCase):
             self.shopping.return_product('atv')
 
         error = catched.exception
-        self.assertEqual(error.message, 'Cannot remove a non-purchased product.')
+        self.assertEqual(error.message, 'Cannot return a non-purchased product.')
 
     def test_should_return_a_purchased_product(self):
         self.assertNotIn('ipd', self.shopping.purchase_basket.purchases)
@@ -114,8 +114,8 @@ class ShoppingTestCase(unittest.TestCase):
         self.assertEqual(invoice['items']['ipd']['price'], '2749.95')
         self.assertIn('promotions', invoice)
         self.assertIsInstance(invoice['promotions'], dict)
-        self.assertIn('ipd50', invoice['promotions'])
-        self.assertIsInstance(invoice['promotions']['ipd50'], dict)
-        self.assertEqual(invoice['promotions']['ipd50']['price'], '-250.00')
+        self.assertIn('ipd4gt', invoice['promotions'])
+        self.assertIsInstance(invoice['promotions']['ipd4gt'], dict)
+        self.assertEqual(invoice['promotions']['ipd4gt']['price'], '-250.00')
         self.assertIn('total_price', invoice)
         self.assertIn(invoice['total_price'], '2499.95')

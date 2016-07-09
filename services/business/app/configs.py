@@ -1,3 +1,9 @@
+"""All configurations must be here. This is the only module from the application
+that can be import inside other modules (excepto `app`). The reason is to maintain
+a good decoupled design.
+"""
+
+
 from decimal import Decimal
 
 
@@ -33,13 +39,7 @@ products = {
 def condition_atv3by2(shopping):
     basket = shopping.purchase_basket
 
-    if not basket.has_purchase('atv'):
-        return False
-
-    if basket.get_purchase_units('atv') < 3:
-        return False
-
-    return True
+    return basket.get_purchase_units('atv') >= 3
 
 def reward_atv3by2(shopping):
     basket = shopping.purchase_basket
@@ -54,18 +54,12 @@ def reward_atv3by2(shopping):
     return discount
 
 
-def condition_ipd50(shopping):
+def condition_ipd4gt(shopping):
     basket = shopping.purchase_basket
 
-    if not basket.has_purchase('ipd'):
-        return False
+    return basket.get_purchase_units('ipd') > 4
 
-    if basket.get_purchase_units('ipd') < 5:
-        return False
-
-    return True
-
-def reward_ipd50(shopping):
+def reward_ipd4gt(shopping):
     basket = shopping.purchase_basket
 
     units = basket.get_purchase_units('ipd')
@@ -80,10 +74,7 @@ def reward_ipd50(shopping):
 def condition_mbpvga(shopping):
     basket = shopping.purchase_basket
 
-    if basket.has_purchase('mbp'):
-        return True
-
-    return False
+    return basket.has_purchase('mbp')
 
 # implementation may change according to the reviewer's answer
 def reward_mbpvga(shopping):
@@ -113,9 +104,9 @@ promotions = {
         'reward' : reward_atv3by2,
         'description' : 'For each 3 Apple TVs you buy, 1 is for free!'
     },
-    'ipd50' : {
-        'condition' : condition_ipd50,
-        'reward' : reward_ipd50,
+    'ipd4gt' : {
+        'condition' : condition_ipd4gt,
+        'reward' : reward_ipd4gt,
         'description' : 'Buy more than 4 Super Ipads and pay only $499.99 on each!'
     },
     'mbpvga' : {

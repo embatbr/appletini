@@ -22,23 +22,23 @@ class Writer(object):
         self.write('err: %s' % err)
 
     def write_help(self):
-        screen = '\n\tHELP\nCOMMAND\t\tDESCRIPTION\n'
-        screen = '%s\nhelp\t\tshows this list' % screen
-        screen = '%s\nproducts\tshows list of products' % screen
-        screen = '%s\nbasket\t\tshows current basket' % screen
-        screen = '%s\nadd <SKU>\tadds product to basket given SKU' % screen
-        screen = '%s\nremove <SKU> \tremoves product from basket given SKU' % screen
-        screen = '%s\nclear\t\tremoves all products (clears) from basket' % screen
-        screen = '%s\ncheckout\tfinishes shopping and shows basket' % screen
-        screen = '%s\npromotions\tshows current promotions' % screen
-        screen = '%s\nexit\t\tleaves APPLETINI' % screen
+        screen = '\n\t\tHELP\nCOMMAND\t\t\tDESCRIPTION\n'
+        screen = '%s\nhelp\t\t\tshows this list' % screen
+        screen = '%s\nproducts\t\tshows list of products' % screen
+        screen = '%s\nbasket\t\t\tshows current basket' % screen
+        screen = '%s\nadd <SKU>\t\tadds product to basket given SKU' % screen
+        screen = '%s\nremove <SKU> \t\tremoves product from basket given SKU' % screen
+        screen = '%s\nclear\t\t\tremoves all products (clears) from basket' % screen
+        screen = '%s\ncheckout\t\tfinishes shopping and shows basket' % screen
+        screen = '%s\npromotions\t\tshows current promotions' % screen
+        screen = '%s\nexit\t\t\tleaves APPLETINI' % screen
         screen = '%s\n' % screen
 
         self.write(screen)
 
     # TODO get from service **business** (and later, from **storage**)
     def write_products(self, products):
-        screen = '\n\tPRODUCTS\nSKU\tNAME\t\tPRICE (USD)\n'
+        screen = '\n\t\tPRODUCTS\nSKU\tNAME\t\t\tPRICE (USD)\n'
 
         for sku in products:
             product = products[sku]
@@ -46,7 +46,7 @@ class Writer(object):
             name = product['name']
             price = product['price']
 
-            screen = '%s\n%s\t%s\t%10s' % (screen, sku, name, price)
+            screen = '%s\n%s\t%s\t\t%10s' % (screen, sku, name, price)
 
         new_line = '\n' if products else ''
         screen = '%s%s' % (screen, new_line)
@@ -54,7 +54,7 @@ class Writer(object):
         self.write(screen)
 
     def write_basket(self, basket):
-        screen = '\n\tBASKET\nSKU\t\tNAME\t\tUNITS\tPRICE (USD)\n'
+        screen = '\n\t\t\tBASKET\nSKU\t\tNAME\t\tUNITS\tPRICE (USD)\n'
 
         items = basket['items']
         for sku in items:
@@ -85,14 +85,14 @@ class Writer(object):
         self.write(screen)
 
     def write_promotions(self, promotions):
-        screen = '\n\tPROMOTIONS\nCODE\t\tDESCRIPTION\n'
+        screen = '\n\t\tPROMOTIONS\nCODE\t\t\tDESCRIPTION\n'
 
         for code in promotions:
             promotion = promotions[code]
 
             description = promotion['description']
 
-            screen = '%s\n%s\t\t%s' % (screen, code, description)
+            screen = '%s\n%s\t\t\t%s' % (screen, code, description)
 
         new_line = '\n' if promotions else ''
         screen = '%s%s' % (screen, new_line)

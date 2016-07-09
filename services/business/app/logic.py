@@ -28,6 +28,9 @@ class Shopping(object):
         if sku not in self.products:
             raise BaseError('Cannot return an invalid product.')
 
+        if not self.purchase_basket.has_purchase(sku):
+            raise BaseError('Cannot return a non-purchased product.')
+
         try:
             self.purchase_basket.remove_product(sku)
 
@@ -35,12 +38,11 @@ class Shopping(object):
             raise err
 
     def clear_basket(self):
-        try:
-            self.purchase_basket.clear()
-            return self.export_basket()
+        if self.purchase_basket.is_empty():
+            raise BaseError('Cannot clear empty basket.')
 
-        except BaseError as err:
-            raise err
+        self.purchase_basket.clear()
+        return self.export_basket()
 
     def checkout(self):
         if self.purchase_basket.is_empty():
@@ -95,8 +97,10 @@ class Shopping(object):
                 }
 
         invoice = self.purchase_basket.get_invoice()
+
+        invoice['promotions'] = promotions
+
         total_price = self.purchase_basket.calculate_price() + total_discount
         invoice['total_price'] = str(total_price)
-        invoice['promotions'] = promotions
 
         return invoice

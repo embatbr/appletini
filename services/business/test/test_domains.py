@@ -77,15 +77,6 @@ class PurchaseBasketTestCase(unittest.TestCase):
 
         self.assertEqual(self.purchase_basket.purchases[self.product.sku].units, 2)
 
-    def test_should_not_remove_a_non_existing_product(self):
-        self.assertNotIn(self.product.sku, self.purchase_basket.purchases)
-
-        with self.assertRaises(BaseError) as catched:
-            self.purchase_basket.remove_product(self.product.sku)
-
-        error = catched.exception
-        self.assertEqual(error.message, 'Cannot remove a non-purchased product.')
-
     def test_should_delete_product_when_removing_purchase_with_one_unit(self):
         self.purchase_basket.add_product(self.product)
 
@@ -107,13 +98,6 @@ class PurchaseBasketTestCase(unittest.TestCase):
         self.purchase_basket.remove_product(self.product.sku)
 
         self.assertEqual(self.purchase_basket.purchases[self.product.sku].units, 1)
-
-    def test_should_not_clear_empty_purchase_basket(self):
-        with self.assertRaises(BaseError) as catched:
-            self.purchase_basket.clear()
-
-        error = catched.exception
-        self.assertEqual(error.message, 'Cannot clear empty basket.')
 
     def test_should_clear_purchase_basket(self):
         self.assertFalse(self.purchase_basket.purchases)
