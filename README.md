@@ -4,6 +4,10 @@ The tiny mock Apple Store.
 
 Appletini is a mock Apple Store. It may be composed of one or more RESTful services (e.g., front-end and back-end microservices).
 
+## Branches
+
+The branch used to review the code is **master**. Improvements in the code (esthetical of structural/functional) are present in branch **improv**.
+
 ## Services
 
 There are three services (follow the links to see the READMEs):
