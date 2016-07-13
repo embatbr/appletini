@@ -2,7 +2,7 @@
 
 The tiny mock Apple Store.
 
-Appletini is a mock Apple Store. It may be composed of one or more RESTful services (e.g., front-end and back-end microservices).
+Appletini is a mock Apple Store for the Catho/Seek coding test. The specifications can be found [here](./GDP-Programming.pdf). It may be composed of one or more RESTful services (e.g., front-end and back-end microservices).
 
 ## Branches
 
@@ -28,14 +28,7 @@ Unit tests were written only for modules `domains` and `logic`, in service **bus
 
 All tests can be execute typing `python -m unittest discover` in terminal while inside directory *./services/business*. Each test file is execute by `python -m unittest test.test_<module name>`.
 
-# TODO
+# Links
 
-- Develop module `web_clients`
-    - Sends data to the service `storage`
-    - Service `storage`
-        - Receives HTTP request from service `business` (and maybe `presentation` too)
-        - Reads/writes from/to database
-
-- Allow multi-tenancy
-
-- Develop service `auth`
+- [Seek](http://www.seek.com.au/)
+- [GDP](http://www.globaldeliverypod.com/)
